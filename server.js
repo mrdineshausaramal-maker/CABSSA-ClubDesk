@@ -274,6 +274,107 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
+      // 3. AUTHENTICATION & INITIAL SETUP ENDPOINTS
+      if (pathname === '/api/auth/setup-status' && method === 'GET') {
+        const hasAdmin = db.profiles.some(p => p.role === 'ADMIN');
+        return sendJson(res, 200, {
+          success: true,
+          initialized: hasAdmin,
+          adminCount: db.profiles.filter(p => p.role === 'ADMIN').length,
+          memberCount: db.profiles.length
+        });
+      }
+
+      // Initial Super Admin Creation (Allowed ONLY when no Admin exists)
+      if (pathname === '/api/auth/setup-admin' && method === 'POST') {
+        const hasAdmin = db.profiles.some(p => p.role === 'ADMIN');
+        if (hasAdmin) {
+          return sendError(res, 403, 'System has already been initialized with an Administrator account. Please sign in.');
+        }
+
+        const body = await parseJsonBody(req);
+        const {
+          fullName, full_name,
+          email,
+          password,
+          contactNumber, contact_number,
+          prnNumber, prn_number,
+          rollNumber, roll_number,
+          academicYear, academic_year = 'TY',
+          division = 'A',
+          domainId, domain_id,
+          personalVehicle = false,
+          dob = null
+        } = body;
+
+        const fName = (fullName || full_name || '').trim();
+        const em = (email || '').toLowerCase().trim();
+        const pwd = (password || '').trim();
+        const contact = (contactNumber || contact_number || '').trim();
+        const prn = (prnNumber || prn_number || '').toUpperCase().trim();
+        const roll = (rollNumber || roll_number || '').toUpperCase().trim();
+        const year = academicYear || academic_year;
+        const div = division.toUpperCase().trim();
+
+        if (!fName || !em || !pwd || !contact || !prn || !roll) {
+          return sendError(res, 400, 'All fields (Full Name, Email, Password, Contact, PRN, and Roll Number) are required.');
+        }
+
+        if (pwd.length < 6) {
+          return sendError(res, 400, 'Password must be at least 6 characters.');
+        }
+
+        const newId = crypto.randomUUID();
+        const memberId = 'CABSSA-' + new Date().getFullYear() + '-001';
+
+        const newAdmin = {
+          id: newId,
+          auth_user_id: newId,
+          member_id: memberId,
+          full_name: fName,
+          email: em,
+          password_hash: pwd,
+          contact_number: contact,
+          prn_number: prn,
+          roll_number: roll,
+          academic_year: year,
+          division: div,
+          designation: 'Admin',
+          role: 'ADMIN',
+          domain_id: domainId || domain_id || null,
+          personal_vehicle: Boolean(personalVehicle),
+          dob: dob || null,
+          profile_photo_url: '',
+          date_of_joining: new Date().toISOString().split('T')[0],
+          status: 'Active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        db.profiles.push(newAdmin);
+        await persistDb();
+
+        const token = signToken({
+          userId: newAdmin.id,
+          role: 'ADMIN',
+          email: newAdmin.email,
+          prn: newAdmin.prn_number
+        });
+
+        recordActivity(newAdmin, 'SYSTEM_BOOTSTRAPPED_ADMIN', 'SYSTEM', newAdmin.id, {
+          member_id: memberId,
+          full_name: fName,
+          email: em
+        }, req);
+
+        return sendJson(res, 201, {
+          success: true,
+          message: 'Administrator account successfully created. System initialized.',
+          token,
+          user: newAdmin
+        });
+      }
+
       // 3. AUTHENTICATION ENDPOINTS
       if (pathname === '/api/auth/login' && method === 'POST') {
         const body = await parseJsonBody(req);

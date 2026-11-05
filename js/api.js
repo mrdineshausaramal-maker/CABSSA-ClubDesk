@@ -117,8 +117,23 @@
     },
 
     // ------------------------------------------------------------------------
-    // AUTHENTICATION
+    // AUTHENTICATION & SETUP
     // ------------------------------------------------------------------------
+    async getSetupStatus() {
+      return httpRequest('/api/auth/setup-status');
+    },
+
+    async setupAdmin(adminData) {
+      const payload = await httpRequest('/api/auth/setup-admin', {
+        method: 'POST',
+        body: JSON.stringify(adminData)
+      });
+      if (payload.success && payload.token) {
+        this.setSession(payload.token, payload.user);
+      }
+      return payload;
+    },
+
     async login(emailOrPrn, password) {
       const payload = await httpRequest('/api/auth/login', {
         method: 'POST',

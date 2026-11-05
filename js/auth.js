@@ -1,38 +1,53 @@
 /**
  * CABSSA Clubdesk — Authentication & RBAC Engine
- * Strict session management and client-side view authorization guard
+ * Strict session management, initial Super Admin bootstrap, and role guards
  */
 (() => {
   'use strict';
 
   const Auth = {
     user: null,
+    isInitialized: false,
 
-    init() {
+    async init() {
       this.user = window.CABSSA_API.user;
+      await this.checkSetupStatus();
       this.bindEvents();
       this.updateUI();
     },
 
+    async checkSetupStatus() {
+      try {
+        const res = await window.CABSSA_API.getSetupStatus();
+        this.isInitialized = Boolean(res && res.initialized);
+
+        // Toggle visibility between Setup Admin form and Sign-in form
+        const setupSection = document.getElementById('initialSetupSection');
+        const loginSection = document.getElementById('standardLoginSection');
+
+        if (!this.isInitialized) {
+          if (setupSection) setupSection.classList.remove('hidden');
+          if (loginSection) loginSection.classList.add('hidden');
+        } else {
+          if (setupSection) setupSection.classList.add('hidden');
+          if (loginSection) loginSection.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.warn('[AUTH] Could not determine setup status:', err);
+      }
+    },
+
     bindEvents() {
-      // 1-Click Fast Profile Login buttons
-      document.querySelectorAll('[data-fast-login]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const role = btn.dataset.fastLogin;
-          let email = 'admin@cabssa.internal';
-          if (role === 'cohead') email = 'cohead@cabssa.internal';
-          if (role === 'member') email = 'member@cabssa.internal';
-
-          const emailInput = document.getElementById('loginIdentifier');
-          const passInput = document.getElementById('loginPassword');
-          if (emailInput) emailInput.value = email;
-          if (passInput) passInput.value = 'Cabssa@2026';
-
-          this.handleLoginSubmit();
+      // 1. Initial Admin Setup Form
+      const setupForm = document.getElementById('setupAdminForm');
+      if (setupForm) {
+        setupForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleSetupAdminSubmit();
         });
-      });
+      }
 
-      // Login form submit
+      // 2. Standard Login Form
       const loginForm = document.getElementById('loginForm');
       if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
@@ -41,13 +56,103 @@
         });
       }
 
-      // Logout buttons
+      // 3. Switch between forms
+      const showSetupBtn = document.getElementById('toggleToSetupBtn');
+      if (showSetupBtn) {
+        showSetupBtn.addEventListener('click', () => {
+          document.getElementById('initialSetupSection')?.classList.remove('hidden');
+          document.getElementById('standardLoginSection')?.classList.add('hidden');
+        });
+      }
+
+      const showLoginBtn = document.getElementById('toggleToLoginBtn');
+      if (showLoginBtn) {
+        showLoginBtn.addEventListener('click', () => {
+          document.getElementById('initialSetupSection')?.classList.add('hidden');
+          document.getElementById('standardLoginSection')?.classList.remove('hidden');
+        });
+      }
+
+      // 4. Logout triggers
       document.querySelectorAll('[data-action="logout"]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           this.logout();
         });
       });
+    },
+
+    async handleSetupAdminSubmit() {
+      const errorBox = document.getElementById('setupAdminErrorBox');
+      const submitBtn = document.getElementById('setupAdminSubmitBtn');
+      if (errorBox) errorBox.classList.add('hidden');
+
+      const fullName = document.getElementById('setupFullName')?.value.trim();
+      const email = document.getElementById('setupEmail')?.value.trim();
+      const password = document.getElementById('setupPassword')?.value.trim();
+      const prnNumber = document.getElementById('setupPRN')?.value.trim();
+      const rollNumber = document.getElementById('setupRoll')?.value.trim();
+      const contactNumber = document.getElementById('setupContact')?.value.trim();
+      const academicYear = document.getElementById('setupYear')?.value || 'TY';
+      const division = document.getElementById('setupDivision')?.value || 'A';
+      const personalVehicle = document.getElementById('setupVehicle')?.checked || false;
+
+      if (!fullName || !email || !password || !prnNumber || !rollNumber || !contactNumber) {
+        if (errorBox) {
+          errorBox.textContent = 'Please fill out all required fields marked with an asterisk (*).';
+          errorBox.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (password.length < 6) {
+        if (errorBox) {
+          errorBox.textContent = 'Password must be at least 6 characters.';
+          errorBox.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating Administrator in PostgreSQL Database...';
+      }
+
+      try {
+        const res = await window.CABSSA_API.setupAdmin({
+          fullName,
+          email,
+          password,
+          prnNumber,
+          rollNumber,
+          contactNumber,
+          academicYear,
+          division,
+          personalVehicle
+        });
+
+        this.user = res.user;
+        this.isInitialized = true;
+        window.CABSSA_TOAST.show(`Welcome, ${this.user.full_name}! Administrator account successfully established.`, 'success');
+        
+        this.updateUI();
+        this.closeLoginModal();
+
+        // Refresh views
+        if (window.CABSSA_ROUTER) {
+          window.CABSSA_ROUTER.refreshCurrentView();
+        }
+      } catch (err) {
+        if (errorBox) {
+          errorBox.textContent = err.message || 'Setup failed.';
+          errorBox.classList.remove('hidden');
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Establish Association Administrator';
+        }
+      }
     },
 
     async handleLoginSubmit() {
@@ -70,13 +175,7 @@
 
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `
-          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-          </svg>
-          Authenticating against PostgreSQL...
-        `;
+        submitBtn.innerHTML = `Signing In...`;
       }
 
       if (errorBox) errorBox.classList.add('hidden');
@@ -88,7 +187,6 @@
         this.updateUI();
         this.closeLoginModal();
 
-        // Refresh currently active module
         if (window.CABSSA_ROUTER) {
           window.CABSSA_ROUTER.refreshCurrentView();
         }
@@ -113,7 +211,7 @@
     async logout() {
       await window.CABSSA_API.logout();
       this.user = null;
-      window.CABSSA_TOAST.show('You have been safely signed out.', 'info');
+      window.CABSSA_TOAST.show('You have been signed out.', 'info');
       this.updateUI();
       this.openLoginModal();
     },
@@ -156,6 +254,7 @@
     },
 
     openLoginModal() {
+      this.checkSetupStatus();
       const modal = document.getElementById('loginModal');
       if (modal) modal.classList.remove('hidden');
     },
