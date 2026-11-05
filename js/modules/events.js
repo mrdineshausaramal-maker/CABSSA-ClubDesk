@@ -88,6 +88,12 @@
 
                   ${isPrivileged ? `
                     <button 
+                      onclick="window.CABSSA_EVENTS.openEditEventModal('${ev.id}')"
+                      class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.04] hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 border border-white/[0.08] transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button 
                       onclick="window.CABSSA_EVENTS.openDutyModal('${ev.id}')"
                       class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08] transition-colors"
                     >
@@ -113,15 +119,15 @@
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs font-mono text-slate-300">
                 <div>
                   <span class="text-slate-500 block text-[10px] uppercase">Event Date</span>
-                  <span class="font-semibold text-white">📅 ${ev.event_date}</span>
+                  <span class="font-semibold text-white">Date: ${ev.event_date}</span>
                 </div>
                 <div>
                   <span class="text-slate-500 block text-[10px] uppercase">Shift Timings</span>
-                  <span class="font-semibold text-white">🕒 ${ev.start_time} - ${ev.end_time}</span>
+                  <span class="font-semibold text-white">Time: ${ev.start_time} - ${ev.end_time}</span>
                 </div>
                 <div>
                   <span class="text-slate-500 block text-[10px] uppercase">Venue Location</span>
-                  <span class="font-semibold text-white">📍 ${escapeHtml(ev.location)}</span>
+                  <span class="font-semibold text-white">Venue: ${escapeHtml(ev.location)}</span>
                 </div>
               </div>
 
@@ -171,6 +177,15 @@
       const form = document.getElementById('eventForm');
       if (form) form.reset();
 
+      const idInput = document.getElementById('eventFormId');
+      if (idInput) idInput.value = '';
+
+      const statusContainer = document.getElementById('eventFormStatusContainer');
+      if (statusContainer) statusContainer.classList.add('hidden');
+
+      const modalTitle = modal.querySelector('h3');
+      if (modalTitle) modalTitle.textContent = 'Create Association Event';
+
       // Populate domain dropdown
       const sel = document.getElementById('eventFormDomain');
       if (sel) {
@@ -183,12 +198,54 @@
       if (modal) modal.classList.remove('hidden');
     },
 
+    openEditEventModal(eventId) {
+      if (!window.CABSSA_AUTH.requireCoHead()) return;
+      const ev = currentEventsList.find(e => e.id === eventId);
+      if (!ev) return;
+
+      const modal = document.getElementById('eventModal');
+      const form = document.getElementById('eventForm');
+      if (form) form.reset();
+
+      const idInput = document.getElementById('eventFormId');
+      if (idInput) idInput.value = ev.id;
+
+      document.getElementById('eventFormTitle').value = ev.title || '';
+      document.getElementById('eventFormDescription').value = ev.description || '';
+      document.getElementById('eventFormDate').value = ev.event_date || '';
+      document.getElementById('eventFormStartTime').value = ev.start_time || '';
+      document.getElementById('eventFormEndTime').value = ev.end_time || '';
+      document.getElementById('eventFormLocation').value = ev.location || '';
+
+      const statusContainer = document.getElementById('eventFormStatusContainer');
+      if (statusContainer) {
+        statusContainer.classList.remove('hidden');
+        const statusSelect = document.getElementById('eventFormStatus');
+        if (statusSelect) statusSelect.value = ev.status || 'Upcoming';
+      }
+
+      const modalTitle = modal.querySelector('h3');
+      if (modalTitle) modalTitle.textContent = 'Edit Association Event';
+
+      const sel = document.getElementById('eventFormDomain');
+      if (sel) {
+        sel.innerHTML = '<option value="">General Association Event</option>';
+        (window.CABSSA_DOMAINS_LIST || []).forEach(d => {
+          const selected = ev.domain_id === d.id ? 'selected' : '';
+          sel.innerHTML += `<option value="${d.id}" ${selected}>${escapeHtml(d.name)}</option>`;
+        });
+      }
+
+      if (modal) modal.classList.remove('hidden');
+    },
+
     closeEventModal() {
       const modal = document.getElementById('eventModal');
       if (modal) modal.classList.add('hidden');
     },
 
     async handleSaveEvent() {
+      const id = document.getElementById('eventFormId')?.value || '';
       const title = document.getElementById('eventFormTitle').value.trim();
       const description = document.getElementById('eventFormDescription').value.trim();
       const event_date = document.getElementById('eventFormDate').value;
@@ -196,25 +253,33 @@
       const end_time = document.getElementById('eventFormEndTime').value;
       const location = document.getElementById('eventFormLocation').value.trim();
       const domain_id = document.getElementById('eventFormDomain').value || null;
+      const status = id ? (document.getElementById('eventFormStatus')?.value || 'Upcoming') : 'Upcoming';
 
       if (!title || !event_date || !start_time || !end_time || !location) {
         window.CABSSA_TOAST.show('Please fill in all required event details.', 'error');
         return;
       }
 
-      try {
-        await window.CABSSA_API.createEvent({
-          title,
-          description,
-          event_date,
-          start_time,
-          end_time,
-          location,
-          domain_id,
-          status: 'Upcoming'
-        });
+      const payload = {
+        title,
+        description,
+        event_date,
+        start_time,
+        end_time,
+        location,
+        domain_id,
+        status
+      };
 
-        window.CABSSA_TOAST.show(`Event '${title}' successfully created in database.`, 'success');
+      try {
+        if (id) {
+          await window.CABSSA_API.updateEvent(id, payload);
+          window.CABSSA_TOAST.show(`Event '${title}' updated in database.`, 'success');
+        } else {
+          await window.CABSSA_API.createEvent(payload);
+          window.CABSSA_TOAST.show(`Event '${title}' successfully created in database.`, 'success');
+        }
+
         this.closeEventModal();
         await this.renderEvents();
       } catch (err) {

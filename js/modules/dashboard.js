@@ -61,10 +61,10 @@
                 <div class="space-y-1">
                   <h4 class="text-xs font-bold text-white">${escapeHtml(ev.title)}</h4>
                   <p class="text-[11px] text-slate-400 flex items-center gap-2 font-mono">
-                    <span>📅 ${ev.event_date}</span>
-                    <span>🕒 ${ev.start_time} - ${ev.end_time}</span>
+                    <span>Date: ${ev.event_date}</span>
+                    <span>Time: ${ev.start_time} - ${ev.end_time}</span>
                   </p>
-                  <p class="text-[10px] text-violet-300 font-mono">📍 ${escapeHtml(ev.location)}</p>
+                  <p class="text-[10px] text-violet-300 font-mono">Venue: ${escapeHtml(ev.location)}</p>
                 </div>
                 <button 
                   onclick="window.CABSSA_ROUTER.navigate('events')"

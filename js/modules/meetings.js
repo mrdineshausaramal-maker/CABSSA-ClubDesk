@@ -85,15 +85,27 @@
               <div>
                 <span class="text-[10px] font-mono uppercase text-violet-400 font-bold">Official Executive Session</span>
                 <h3 class="text-base font-bold text-white">${escapeHtml(m.title)}</h3>
-                <p class="text-xs text-slate-400 font-mono">📅 ${dateStr} at ${timeStr} · Recorded by ${escapeHtml(m.creator_name)}</p>
+                <p class="text-xs text-slate-400 font-mono">${dateStr} at ${timeStr} · Recorded by ${escapeHtml(m.creator_name)}</p>
               </div>
 
-              <button 
-                onclick="window.CABSSA_MEETINGS.openMoMReader('${m.id}')"
-                class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 border border-violet-500/40 transition-colors self-start sm:self-auto"
-              >
-                Inspect Full MoM
-              </button>
+              <div class="flex items-center space-x-2 self-start sm:self-auto">
+                <button 
+                  onclick="window.CABSSA_MEETINGS.openMoMReader('${m.id}')"
+                  class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 border border-violet-500/40 transition-colors"
+                >
+                  Inspect Full MoM
+                </button>
+                <button 
+                  onclick="window.CABSSA_MEETINGS.deleteMeeting('${m.id}')"
+                  data-role-admin
+                  class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  title="Delete MoM Record"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <!-- Summary sections -->
@@ -226,6 +238,20 @@
     if (!str) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+
+  MeetingsModule.deleteMeeting = async function(meetingId) {
+    if (!window.CABSSA_AUTH.requireAdmin()) return;
+
+    if (confirm('Are you sure you want to delete this Minutes of Meeting record from PostgreSQL database?')) {
+      try {
+        await window.CABSSA_API.deleteMeeting(meetingId);
+        window.CABSSA_TOAST.show('Minutes of Meeting record removed.', 'info');
+        await this.renderMeetings();
+      } catch (err) {
+        window.CABSSA_TOAST.show('Failed to delete MoM: ' + err.message, 'error');
+      }
+    }
+  };
 
   window.CABSSA_MEETINGS = MeetingsModule;
 })();

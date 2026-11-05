@@ -113,6 +113,15 @@
                     <option value="In Progress" ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                     <option value="Completed" ${t.status === 'Completed' ? 'selected' : ''}>Completed</option>
                   </select>
+                  <button 
+                    onclick="window.CABSSA_TASKS.deleteTask('${t.id}')"
+                    class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                    title="Delete Action Item"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -126,7 +135,7 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                  <span>📅 Due: <strong class="text-slate-200">${t.due_date}</strong></span>
+                  <span>Due: <strong class="text-slate-200">${t.due_date}</strong></span>
                   ${t.completed_at ? `<span class="text-emerald-400 font-semibold">Done: ${new Date(t.completed_at).toLocaleDateString()}</span>` : ''}
                 </div>
               </div>
@@ -210,6 +219,20 @@
     if (!str) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+
+  TasksModule.deleteTask = async function(taskId) {
+    if (!window.CABSSA_AUTH.requireCoHead()) return;
+
+    if (confirm('Are you sure you want to delete this action item from database?')) {
+      try {
+        await window.CABSSA_API.deleteTask(taskId);
+        window.CABSSA_TOAST.show('Action item removed from database.', 'info');
+        await this.renderTasks();
+      } catch (err) {
+        window.CABSSA_TOAST.show('Failed to delete task: ' + err.message, 'error');
+      }
+    }
+  };
 
   window.CABSSA_TASKS = TasksModule;
 })();

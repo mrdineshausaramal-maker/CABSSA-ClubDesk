@@ -1,0 +1,12 @@
+{
+  "name": "cabssa-clubdesk",
+  "version": "2.5.0",
+  "description": "CABSSA Clubdesk — Internal Club Management System",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/setup.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

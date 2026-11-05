@@ -15,15 +15,17 @@ const crypto = require('node:crypto');
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
-const BASE_DIR = __dirname;
-const DATA_FILE = path.join(BASE_DIR, 'data', 'clubdesk.json');
-const BACKUP_FILE = path.join(BASE_DIR, 'data', 'clubdesk.backup.json');
-const UPLOAD_DIR = path.join(BASE_DIR, 'uploads', 'photos');
+const isVercel = Boolean(process.env.VERCEL);
+const BASE_DIR = isVercel ? process.cwd() : __dirname;
+const DATA_DIR = isVercel ? path.join('/tmp', 'data') : path.join(BASE_DIR, 'data');
+const DATA_FILE = path.join(DATA_DIR, 'clubdesk.json');
+const BACKUP_FILE = path.join(DATA_DIR, 'clubdesk.backup.json');
+const UPLOAD_DIR = isVercel ? path.join('/tmp', 'uploads', 'photos') : path.join(BASE_DIR, 'uploads', 'photos');
 const JWT_SECRET = process.env.JWT_SECRET || 'cabssa-clubdesk-secret-key-2026-production';
 
 // Ensure required directories exist
 try {
-  fs.mkdirSync(path.join(BASE_DIR, 'data'), { recursive: true });
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 } catch (e) {}
 
@@ -50,6 +52,14 @@ let writeQueue = Promise.resolve();
 
 function loadDatabase() {
   try {
+    if (isVercel && !fs.existsSync(DATA_FILE)) {
+      const seedSource = path.join(BASE_DIR, 'data', 'clubdesk.json');
+      if (fs.existsSync(seedSource)) {
+        try {
+          fs.copyFileSync(seedSource, DATA_FILE);
+        } catch (e) {}
+      }
+    }
     if (fs.existsSync(DATA_FILE)) {
       const raw = fs.readFileSync(DATA_FILE, 'utf8');
       db = JSON.parse(raw);
@@ -206,7 +216,7 @@ function sendError(res, statusCode, message, details = null) {
 // ----------------------------------------------------------------------------
 // MAIN HTTP SERVER & REST ROUTER
 // ----------------------------------------------------------------------------
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   // CORS Preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
@@ -1244,6 +1254,52 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
+      // Meeting update: PUT /api/meetings/:id
+      if (pathname.startsWith('/api/meetings/') && method === 'PUT') {
+        const meetingId = pathname.replace('/api/meetings/', '');
+        const caller = getAuthUser(req);
+        if (!caller || (caller.role !== 'ADMIN' && caller.role !== 'CO_HEAD')) {
+          return sendError(res, 403, 'Forbidden: Only Admins and Co-Heads can edit MoM.');
+        }
+
+        const meeting = db.meeting_minutes.find(m => m.id === meetingId);
+        if (!meeting) return sendError(res, 404, 'Meeting record not found.');
+
+        const body = await parseJsonBody(req);
+        if (body.title) meeting.title = body.title.trim();
+        if (body.meeting_date) meeting.meeting_date = body.meeting_date;
+        if (body.agenda) meeting.agenda = body.agenda;
+        if (body.discussion_points) meeting.discussion_points = body.discussion_points;
+        if (body.decisions_taken) meeting.decisions_taken = body.decisions_taken;
+        if (body.announcements !== undefined) meeting.announcements = body.announcements;
+        if (body.meeting_notes !== undefined) meeting.meeting_notes = body.meeting_notes;
+        if (body.attendee_ids) meeting.attendee_ids = body.attendee_ids;
+        meeting.updated_at = new Date().toISOString();
+
+        await persistDb();
+        recordActivity(caller, 'MEETING_MINUTES_UPDATED', 'MEETING', meeting.id, { title: meeting.title }, req);
+        return sendJson(res, 200, { success: true, message: 'Meeting minutes updated.', data: meeting });
+      }
+
+      // Meeting delete: DELETE /api/meetings/:id
+      if (pathname.startsWith('/api/meetings/') && method === 'DELETE') {
+        const meetingId = pathname.replace('/api/meetings/', '');
+        const caller = getAuthUser(req);
+        if (!caller || caller.role !== 'ADMIN') {
+          return sendError(res, 403, 'Forbidden: Only Admins can delete MoM records.');
+        }
+
+        const initialCount = db.meeting_minutes.length;
+        db.meeting_minutes = db.meeting_minutes.filter(m => m.id !== meetingId);
+        if (db.meeting_minutes.length === initialCount) {
+          return sendError(res, 404, 'Meeting not found.');
+        }
+
+        await persistDb();
+        recordActivity(caller, 'MEETING_MINUTES_DELETED', 'MEETING', meetingId, {}, req);
+        return sendJson(res, 200, { success: true, message: 'Meeting minutes deleted.' });
+      }
+
       // 9. ACTION ITEMS & TASKS API
       if (pathname === '/api/tasks') {
         if (method === 'GET') {
@@ -1341,6 +1397,53 @@ const server = http.createServer(async (req, res) => {
         recordActivity(caller, 'TASK_STATUS_UPDATED', 'TASK', task.id, { status: task.status }, req);
 
         return sendJson(res, 200, { success: true, message: 'Task status updated.', data: task });
+      }
+
+      // Task full update: PUT /api/tasks/:id
+      if (pathname.startsWith('/api/tasks/') && method === 'PUT') {
+        const taskId = pathname.replace('/api/tasks/', '');
+        const caller = getAuthUser(req);
+        if (!caller || (caller.role !== 'ADMIN' && caller.role !== 'CO_HEAD')) {
+          return sendError(res, 403, 'Forbidden: Only Admins and Co-Heads can edit action items.');
+        }
+
+        const task = db.action_items.find(t => t.id === taskId);
+        if (!task) return sendError(res, 404, 'Task not found.');
+
+        const body = await parseJsonBody(req);
+        if (body.title) task.title = body.title.trim();
+        if (body.description !== undefined) task.description = body.description;
+        if (body.priority) task.priority = body.priority;
+        if (body.due_date) task.due_date = body.due_date;
+        if (body.assigned_to) task.assigned_to = body.assigned_to;
+        if (body.status) {
+          task.status = body.status;
+          task.completed_at = body.status === 'Completed' ? new Date().toISOString() : null;
+        }
+        task.updated_at = new Date().toISOString();
+
+        await persistDb();
+        recordActivity(caller, 'TASK_UPDATED', 'TASK', task.id, { title: task.title }, req);
+        return sendJson(res, 200, { success: true, message: 'Action item updated.', data: task });
+      }
+
+      // Task delete: DELETE /api/tasks/:id
+      if (pathname.startsWith('/api/tasks/') && method === 'DELETE') {
+        const taskId = pathname.replace('/api/tasks/', '');
+        const caller = getAuthUser(req);
+        if (!caller || (caller.role !== 'ADMIN' && caller.role !== 'CO_HEAD')) {
+          return sendError(res, 403, 'Forbidden: Only Admins and Co-Heads can delete tasks.');
+        }
+
+        const initialCount = db.action_items.length;
+        db.action_items = db.action_items.filter(t => t.id !== taskId);
+        if (db.action_items.length === initialCount) {
+          return sendError(res, 404, 'Task not found.');
+        }
+
+        await persistDb();
+        recordActivity(caller, 'TASK_DELETED', 'TASK', taskId, {}, req);
+        return sendJson(res, 200, { success: true, message: 'Task deleted successfully.' });
       }
 
       // 10. REPORTS & DASHBOARD METRICS API
@@ -1473,14 +1576,20 @@ const server = http.createServer(async (req, res) => {
     console.error('[UNCAUGHT SERVER ERROR]', err);
     sendError(res, 500, `Internal Server Error: ${err.message}`);
   }
-});
+}
 
-server.listen(PORT, HOST, () => {
-  console.log(`=======================================================`);
-  console.log(`CABSSA Clubdesk — Internal Club Management System`);
-  console.log(`Full-Stack Node.js Engine & REST API running at:`);
-  console.log(`- http://localhost:${PORT}`);
-  console.log(`- http://127.0.0.1:${PORT}`);
-  console.log(`Atomic Database: ${DATA_FILE}`);
-  console.log(`=======================================================`);
-});
+const server = http.createServer(handleRequest);
+
+if (require.main === module) {
+  server.listen(PORT, HOST, () => {
+    console.log(`=======================================================`);
+    console.log(`CABSSA Clubdesk — Internal Club Management System`);
+    console.log(`Full-Stack Node.js Engine & REST API running at:`);
+    console.log(`- http://localhost:${PORT}`);
+    console.log(`- http://127.0.0.1:${PORT}`);
+    console.log(`Atomic Database: ${DATA_FILE}`);
+    console.log(`=======================================================`);
+  });
+}
+
+module.exports = handleRequest;

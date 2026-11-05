@@ -94,8 +94,8 @@
                 ${time}
               </td>
               <td class="py-3 px-4">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${isQr ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">
-                  ${isQr ? '⚡ REVERSE QR' : '✍️ MANUAL OVERRIDE'}
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${isQr ? 'REVERSE QR' : 'MANUAL'}">
+                  ${isQr ? 'REVERSE QR' : 'MANUAL'}
                 </span>
               </td>
               <td class="py-3 px-4">
@@ -296,7 +296,7 @@
           resultBox.className = 'p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono space-y-1';
           resultBox.innerHTML = `
             <p class="font-bold text-white flex items-center gap-1.5">
-              <span>✅ Attendance Confirmed!</span>
+              <span>Attendance Verified</span>
             </p>
             <p>${escapeHtml(res.message)}</p>
             <p class="text-[10px] text-slate-400">Timestamp: ${new Date().toLocaleTimeString()}</p>
@@ -311,7 +311,7 @@
         if (resultBox) {
           resultBox.className = 'p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs font-mono space-y-1';
           resultBox.innerHTML = `
-            <p class="font-bold text-white">❌ Verification Failed</p>
+            <p class="font-bold text-white">Verification Failed</p>
             <p>${escapeHtml(err.message)}</p>
           `;
           resultBox.classList.remove('hidden');

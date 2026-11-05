@@ -81,12 +81,93 @@
       "created_at": "2026-07-01T09:00:00.000Z"
     }
   ],
-  "profiles": [],
-  "events_shifts": [],
+  "profiles": [
+    {
+      "id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "auth_user_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "member_id": "CABSSA-2026-001",
+      "full_name": "Dinesh Ausaramal",
+      "email": "mr.dineshausaramal@gmail.com",
+      "password_hash": "Shru_nesh@9158",
+      "contact_number": "8080428634",
+      "prn_number": "2526UCB026",
+      "roll_number": "02",
+      "academic_year": "SY",
+      "division": "A",
+      "designation": "Admin",
+      "role": "ADMIN",
+      "domain_id": null,
+      "personal_vehicle": false,
+      "dob": null,
+      "profile_photo_url": "",
+      "date_of_joining": "2026-11-05",
+      "status": "Active",
+      "created_at": "2026-11-05T11:56:50.488Z",
+      "updated_at": "2026-11-05T11:56:50.488Z"
+    }
+  ],
+  "events_shifts": [
+    {
+      "id": "08cae8a5-1478-44bc-9ad8-d0ef74455e3c",
+      "title": "Batch Ceremony",
+      "description": "",
+      "event_date": "2026-12-09",
+      "start_time": "04:00",
+      "end_time": "05:30",
+      "location": "seminar hall csbs cbcr 08",
+      "domain_id": null,
+      "status": "Upcoming",
+      "created_by": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "created_at": "2026-11-05T12:00:00.409Z",
+      "updated_at": "2026-11-05T12:00:00.409Z"
+    }
+  ],
   "event_members": [],
   "attendance_qr_sessions": [],
   "attendance": [],
   "meeting_minutes": [],
   "action_items": [],
-  "activity_logs": []
+  "activity_logs": [
+    {
+      "id": "0fbe4e7e-c260-4ad6-8fb5-f2a120fde6df",
+      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "actor_name": "Dinesh Ausaramal",
+      "action": "EVENT_CREATED",
+      "entity_type": "EVENT",
+      "entity_id": "0766a54a-827f-4365-a2ae-c9c16fc66463",
+      "details": {
+        "title": "Batch Ceremony"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T12:00:00.431Z"
+    },
+    {
+      "id": "020de73e-ec46-43f0-8b04-a5166928a7cc",
+      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "actor_name": "Dinesh Ausaramal",
+      "action": "EVENT_CREATED",
+      "entity_type": "EVENT",
+      "entity_id": "08cae8a5-1478-44bc-9ad8-d0ef74455e3c",
+      "details": {
+        "title": "Batch Ceremony"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T12:00:00.416Z"
+    },
+    {
+      "id": "d6743810-9dc9-449f-81de-a567051affa1",
+      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "actor_name": "Dinesh Ausaramal",
+      "action": "SYSTEM_BOOTSTRAPPED_ADMIN",
+      "entity_type": "SYSTEM",
+      "entity_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "details": {
+        "member_id": "CABSSA-2026-001",
+        "full_name": "Dinesh Ausaramal",
+        "email": "mr.dineshausaramal@gmail.com"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:56:50.497Z"
+    }
+  ]
 }

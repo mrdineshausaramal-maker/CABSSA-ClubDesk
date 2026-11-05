@@ -63,6 +63,8 @@
   </style>
 </head>
 <body class="bg-[#030712] text-slate-100 antialiased selection:bg-violet-600 selection:text-white">
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div id="sidebarBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 lg:hidden hidden" onclick="window.CABSSA_ROUTER.closeMobileSidebar()"></div>
 
   <!-- Toast Notification Root -->
   <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 max-w-md w-full pointer-events-none"></div>
@@ -249,7 +251,8 @@
                 <span>+ Add Member</span>
               </button>
               <button onclick="window.CABSSA_ATTENDANCE.openScannerModal()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 transition-all flex items-center space-x-1.5">
-                <span>⚡ Scan QR Attendance</span>
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                <span>Scan QR Attendance</span>
               </button>
             </div>
           </div>
@@ -1192,7 +1195,8 @@ Loading health status...
     <div class="w-full max-w-md bg-[#060B1E] border border-emerald-500/40 rounded-2xl p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <h3 class="font-bold text-white text-base flex items-center gap-2">
-          <span>⚡ Record Attendance</span>
+          <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span>Record Attendance</span>
         </h3>
         <button onclick="window.CABSSA_ATTENDANCE.closeScannerModal()" class="text-slate-400 hover:text-white">×</button>
       </div>
@@ -1232,6 +1236,16 @@ Loading health status...
       </div>
 
       <form id="eventForm" class="space-y-3 text-xs">
+        <input type="hidden" id="eventFormId">
+        <div id="eventFormStatusContainer" class="hidden">
+          <label class="block text-slate-400 font-mono mb-1">EVENT STATUS</label>
+          <select id="eventFormStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+            <option value="Upcoming">Upcoming</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
         <div>
           <label class="block text-slate-400 font-mono mb-1">EVENT TITLE *</label>
           <input type="text" id="eventFormTitle" required placeholder="e.g. State-Level Technical Hackfest" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-violet-500 outline-none">
@@ -1316,6 +1330,7 @@ Loading health status...
       </div>
 
       <form id="momForm" class="space-y-3 text-xs">
+        <input type="hidden" id="momFormId">
         <div>
           <label class="block text-slate-400 font-mono mb-1">MEETING SESSION TITLE *</label>
           <input type="text" id="momFormTitle" required placeholder="Executive Core Planning Meet" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
@@ -1408,6 +1423,15 @@ Loading health status...
       </div>
 
       <form id="taskForm" class="space-y-3 text-xs">
+        <input type="hidden" id="taskFormId">
+        <div id="taskFormStatusContainer" class="hidden">
+          <label class="block text-slate-400 font-mono mb-1">TASK STATUS</label>
+          <select id="taskFormStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
         <div>
           <label class="block text-slate-400 font-mono mb-1">TASK TITLE *</label>
           <input type="text" id="taskFormTitle" required placeholder="Design Summit Delegate Badges" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">

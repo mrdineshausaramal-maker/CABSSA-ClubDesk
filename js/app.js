@@ -14,17 +14,17 @@
 
       const toast = document.createElement('div');
       let colors = 'bg-slate-900 border-white/20 text-white';
-      let icon = 'ℹ️';
+      let icon = '<svg class="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
 
       if (type === 'success') {
         colors = 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200';
-        icon = '✅';
+        icon = '<svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
       } else if (type === 'error') {
         colors = 'bg-rose-950/90 border-rose-500/50 text-rose-200';
-        icon = '⚠️';
+        icon = '<svg class="w-4 h-4 text-rose-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
       } else if (type === 'warning') {
         colors = 'bg-amber-950/90 border-amber-500/50 text-amber-200';
-        icon = '⚡';
+        icon = '<svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
       }
 
       toast.className = `p-4 rounded-xl border backdrop-blur-md shadow-2xl flex items-center space-x-3 text-xs font-medium transform transition-all duration-300 translate-y-4 opacity-0 ${colors}`;
@@ -70,7 +70,9 @@
       if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
           const sidebar = document.getElementById('mainSidebar');
+          const backdrop = document.getElementById('sidebarBackdrop');
           if (sidebar) sidebar.classList.toggle('-translate-x-full');
+          if (backdrop) backdrop.classList.toggle('hidden');
         });
       }
 
@@ -121,8 +123,12 @@
 
     closeMobileSidebar() {
       const sidebar = document.getElementById('mainSidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
       if (sidebar && window.innerWidth < 1024) {
         sidebar.classList.add('-translate-x-full');
+      }
+      if (backdrop) {
+        backdrop.classList.add('hidden');
       }
     }
   };

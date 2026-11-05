@@ -195,7 +195,7 @@
               <td class="py-3.5 px-4 text-xs font-mono">
                 <p class="text-slate-300 text-[11px]">${escapeHtml(member.contact_number)}</p>
                 <p class="text-[10px] ${member.personal_vehicle ? 'text-emerald-400' : 'text-slate-500'}">
-                  ${member.personal_vehicle ? '🚗 Vehicle Available' : 'No Vehicle'}
+                  ${member.personal_vehicle ? 'Vehicle Available' : 'No Vehicle'}
                 </p>
               </td>
 
@@ -594,6 +594,23 @@
       timeout = setTimeout(later, wait);
     };
   }
+
+    MembersModule.handleDrawerPermanentDelete = async function() {
+    if (!activeMemberInDrawer) return;
+    if (!window.CABSSA_AUTH.requireAdmin()) return;
+
+    const member = activeMemberInDrawer;
+    if (confirm(`CAUTION: Are you sure you want to PERMANENTLY DELETE '${member.full_name}' from PostgreSQL database?\n\nThis action cannot be undone.`)) {
+      try {
+        await window.CABSSA_API.deleteMember(member.id, true);
+        window.CABSSA_TOAST.show(`Member '${member.full_name}' was permanently deleted.`, 'info');
+        this.closeProfileDrawer();
+        await this.renderMembersTable();
+      } catch (err) {
+        window.CABSSA_TOAST.show('Delete failed: ' + err.message, 'error');
+      }
+    }
+  };
 
   window.CABSSA_MEMBERS = MembersModule;
 })();

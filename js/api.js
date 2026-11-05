@@ -333,6 +333,19 @@
       });
     },
 
+    async updateMeeting(id, meetingData) {
+      return httpRequest(`/api/meetings/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify(meetingData)
+      });
+    },
+
+    async deleteMeeting(id) {
+      return httpRequest(`/api/meetings/${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+    },
+
     // ------------------------------------------------------------------------
     // ACTION ITEMS & TASKS
     // ------------------------------------------------------------------------
@@ -350,6 +363,19 @@
       return httpRequest('/api/tasks', {
         method: 'POST',
         body: JSON.stringify(taskData)
+      });
+    },
+
+    async updateTask(id, taskData) {
+      return httpRequest(`/api/tasks/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify(taskData)
+      });
+    },
+
+    async deleteTask(id) {
+      return httpRequest(`/api/tasks/${encodeURIComponent(id)}`, {
+        method: 'DELETE'
       });
     },
 
