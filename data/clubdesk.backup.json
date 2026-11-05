@@ -1,0 +1,857 @@
+{
+  "domains": [
+    {
+      "id": "11111111-1111-1111-1111-111111111101",
+      "name": "Technical",
+      "code": "TECH",
+      "description": "Web dev, fullstack architecture, competitive coding, hackathons, cloud ops and system maintenance.",
+      "icon": "code",
+      "head_id": "22222222-2222-2222-2222-222222222201",
+      "co_head_id": "22222222-2222-2222-2222-222222222202",
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111102",
+      "name": "Design & Graphics",
+      "code": "DESIGN",
+      "description": "Branding, Figma design systems, motion graphics, posters, badges and event banners.",
+      "icon": "palette",
+      "head_id": "22222222-2222-2222-2222-222222222204",
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111103",
+      "name": "Registration",
+      "code": "REG",
+      "description": "Desk check-ins, ticketing coordination, delegate kits, crowd ingress and attendee validation.",
+      "icon": "clipboard-list",
+      "head_id": null,
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111104",
+      "name": "Finance & Sponsorship",
+      "code": "FINANCE",
+      "description": "Budget auditing, corporate outreach, invoices, vendor disbursements and sponsorship decks.",
+      "icon": "coins",
+      "head_id": null,
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111105",
+      "name": "Film & Media",
+      "code": "MEDIA",
+      "description": "Photography, live coverage, reel production, video editing, interviews and podcast series.",
+      "icon": "video",
+      "head_id": null,
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111106",
+      "name": "Logistics",
+      "code": "LOGISTICS",
+      "description": "Auditorium staging, sound/light tech, mikes, transport, campus permissions and power backups.",
+      "icon": "truck",
+      "head_id": null,
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111107",
+      "name": "Documentation",
+      "code": "DOCS",
+      "description": "Official notices, minutes of meeting, permissions, formal proposals, and annual report archives.",
+      "icon": "file-text",
+      "head_id": null,
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111108",
+      "name": "Content Creation",
+      "code": "CONTENT",
+      "description": "Copywriting, technical blogs, scripts, newsletter editions, captions and social handles.",
+      "icon": "feather",
+      "head_id": null,
+      "co_head_id": null,
+      "created_at": "2026-07-01T09:00:00.000Z"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "22222222-2222-2222-2222-222222222201",
+      "auth_user_id": "22222222-2222-2222-2222-222222222201",
+      "member_id": "CABSSA-2024-001",
+      "full_name": "Prof. Rajesh Kulkarni",
+      "email": "admin@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 98230 11223",
+      "prn_number": "PRN202400199",
+      "roll_number": "STAFF-01",
+      "academic_year": "TY",
+      "division": "A",
+      "designation": "Admin",
+      "role": "ADMIN",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "personal_vehicle": true,
+      "dob": "2003-04-12",
+      "profile_photo_url": "logo.png",
+      "date_of_joining": "2024-07-01",
+      "status": "Active",
+      "created_at": "2024-07-01T09:00:00.000Z",
+      "updated_at": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222202",
+      "auth_user_id": "22222222-2222-2222-2222-222222222202",
+      "member_id": "CABSSA-2024-015",
+      "full_name": "Sakshi Deshmukh",
+      "email": "cohead@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 98901 33445",
+      "prn_number": "PRN202401542",
+      "roll_number": "23CS15",
+      "academic_year": "TY",
+      "division": "B",
+      "designation": "Co-Head",
+      "role": "CO_HEAD",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "personal_vehicle": false,
+      "dob": "2004-09-18",
+      "profile_photo_url": "",
+      "date_of_joining": "2024-07-15",
+      "status": "Active",
+      "created_at": "2024-07-15T11:00:00.000Z",
+      "updated_at": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222203",
+      "auth_user_id": "22222222-2222-2222-2222-222222222203",
+      "member_id": "CABSSA-2025-042",
+      "full_name": "Rohan Verma",
+      "email": "member@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 97654 55667",
+      "prn_number": "PRN202504288",
+      "roll_number": "24CS42",
+      "academic_year": "SY",
+      "division": "A",
+      "designation": "Core Team Member",
+      "role": "CORE_MEMBER",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "personal_vehicle": true,
+      "dob": "2005-01-22",
+      "profile_photo_url": "",
+      "date_of_joining": "2025-08-01",
+      "status": "Active",
+      "created_at": "2025-08-01T10:30:00.000Z",
+      "updated_at": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222204",
+      "auth_user_id": "22222222-2222-2222-2222-222222222204",
+      "member_id": "CABSSA-2024-008",
+      "full_name": "Ananya Joshi",
+      "email": "ananya.design@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 98212 99001",
+      "prn_number": "PRN202400812",
+      "roll_number": "23CS08",
+      "academic_year": "TY",
+      "division": "A",
+      "designation": "Head",
+      "role": "CO_HEAD",
+      "domain_id": "11111111-1111-1111-1111-111111111102",
+      "personal_vehicle": false,
+      "dob": "2004-03-15",
+      "profile_photo_url": "",
+      "date_of_joining": "2024-07-10",
+      "status": "Active",
+      "created_at": "2024-07-10T14:00:00.000Z",
+      "updated_at": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222205",
+      "auth_user_id": "22222222-2222-2222-2222-222222222205",
+      "member_id": "CABSSA-2025-019",
+      "full_name": "Aditya Patil",
+      "email": "aditya.logistics@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 95451 77889",
+      "prn_number": "PRN202501934",
+      "roll_number": "24CS19",
+      "academic_year": "SY",
+      "division": "C",
+      "designation": "Core Team Member",
+      "role": "CORE_MEMBER",
+      "domain_id": "11111111-1111-1111-1111-111111111106",
+      "personal_vehicle": true,
+      "dob": "2005-06-30",
+      "profile_photo_url": "",
+      "date_of_joining": "2025-08-10",
+      "status": "Active",
+      "created_at": "2025-08-10T09:15:00.000Z",
+      "updated_at": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "7d165bd6-c928-418b-88e0-e4549b660827",
+      "auth_user_id": "7d165bd6-c928-418b-88e0-e4549b660827",
+      "member_id": "CABSSA-2026-006",
+      "full_name": "Tanvi Deshmukh",
+      "email": "tanvi.1793876028333@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 98220 99999",
+      "prn_number": "PRN76028333",
+      "roll_number": "24CS61",
+      "academic_year": "SY",
+      "division": "B",
+      "designation": "Core Team Member",
+      "role": "CORE_MEMBER",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "personal_vehicle": false,
+      "dob": null,
+      "profile_photo_url": "",
+      "date_of_joining": "2026-11-05",
+      "status": "Active",
+      "created_at": "2026-11-05T10:53:48.329Z",
+      "updated_at": "2026-11-05T10:53:48.344Z"
+    },
+    {
+      "id": "9e43c7e8-b8a6-440e-ace2-a4118154fab9",
+      "auth_user_id": "9e43c7e8-b8a6-440e-ace2-a4118154fab9",
+      "member_id": "CABSSA-2026-007",
+      "full_name": "Tanvi Deshmukh",
+      "email": "tanvi.1793876621052@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 98220 99999",
+      "prn_number": "PRN76621052",
+      "roll_number": "24CS61",
+      "academic_year": "SY",
+      "division": "B",
+      "designation": "Core Team Member",
+      "role": "CORE_MEMBER",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "personal_vehicle": false,
+      "dob": null,
+      "profile_photo_url": "",
+      "date_of_joining": "2026-11-05",
+      "status": "Active",
+      "created_at": "2026-11-05T11:03:41.054Z",
+      "updated_at": "2026-11-05T11:03:41.065Z"
+    },
+    {
+      "id": "6bafa653-f971-47ac-92e0-a014c6072b34",
+      "auth_user_id": "6bafa653-f971-47ac-92e0-a014c6072b34",
+      "member_id": "CABSSA-2026-008",
+      "full_name": "Tanvi Deshmukh",
+      "email": "tanvi.1793876666807@cabssa.internal",
+      "password_hash": "Cabssa@2026",
+      "contact_number": "+91 98220 99999",
+      "prn_number": "PRN76666807",
+      "roll_number": "24CS61",
+      "academic_year": "SY",
+      "division": "B",
+      "designation": "Core Team Member",
+      "role": "CORE_MEMBER",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "personal_vehicle": false,
+      "dob": null,
+      "profile_photo_url": "",
+      "date_of_joining": "2026-11-05",
+      "status": "Active",
+      "created_at": "2026-11-05T11:04:26.797Z",
+      "updated_at": "2026-11-05T11:04:26.811Z"
+    }
+  ],
+  "events_shifts": [
+    {
+      "id": "33333333-3333-3333-3333-333333333301",
+      "title": "CABSSA Technical Sprint & Cloud Architecture Summit",
+      "description": "Flagship state-level student technical conference featuring system design talks and live API hack sessions.",
+      "event_date": "2026-11-12",
+      "start_time": "09:30",
+      "end_time": "17:00",
+      "location": "Central Auditorium, Tech Block B",
+      "domain_id": "11111111-1111-1111-1111-111111111101",
+      "status": "Upcoming",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-10-25T10:00:00.000Z",
+      "updated_at": "2026-10-25T10:00:00.000Z"
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333302",
+      "title": "UI/UX Design Jam & Figma Component Workshop",
+      "description": "Hands-on interactive design workshop covering modern component architecture, micro-interactions, and design tokens.",
+      "event_date": "2026-11-18",
+      "start_time": "14:00",
+      "end_time": "18:30",
+      "location": "Computer Center Lab 4",
+      "domain_id": "11111111-1111-1111-1111-111111111102",
+      "status": "Upcoming",
+      "created_by": "22222222-2222-2222-2222-222222222204",
+      "created_at": "2026-10-26T14:30:00.000Z",
+      "updated_at": "2026-10-26T14:30:00.000Z"
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333303",
+      "title": "Induction & Executive Committee Orientation 2026",
+      "description": "Orientation ceremony for newly inducted core team members with domain briefings and charter distribution.",
+      "event_date": "2026-10-20",
+      "start_time": "10:00",
+      "end_time": "13:00",
+      "location": "Seminar Hall 2",
+      "domain_id": null,
+      "status": "Completed",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-10-10T09:00:00.000Z",
+      "updated_at": "2026-10-20T14:00:00.000Z"
+    },
+    {
+      "id": "6551cad3-9f05-499c-954e-9bf12dbfe0dd",
+      "title": "Automated Test Event 1793876666830",
+      "description": "Automated reverse QR verification test session",
+      "event_date": "2026-11-05",
+      "start_time": "10:00",
+      "end_time": "12:00",
+      "location": "Lab 1",
+      "domain_id": null,
+      "status": "Upcoming",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-05T11:04:26.823Z",
+      "updated_at": "2026-11-05T11:04:26.823Z"
+    }
+  ],
+  "event_members": [
+    {
+      "id": "em-001",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "member_id": "22222222-2222-2222-2222-222222222202",
+      "duty_responsibility": "Technical setup: Stage HDMI splitters, live stream server, and projector calibration.",
+      "assigned_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-10-25T11:00:00.000Z"
+    },
+    {
+      "id": "em-002",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "member_id": "22222222-2222-2222-2222-222222222203",
+      "duty_responsibility": "Speaker stage management and cloud lab runner machines.",
+      "assigned_by": "22222222-2222-2222-2222-222222222202",
+      "created_at": "2026-10-25T11:15:00.000Z"
+    }
+  ],
+  "attendance_qr_sessions": [
+    {
+      "id": "qr-session-active-01",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "token": "CABSSA-SUMMIT-TOKEN-7F89B2",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-05T10:00:00.000Z",
+      "expires_at": "2026-11-05T23:59:59.000Z",
+      "is_active": false
+    },
+    {
+      "id": "41d1ddaf-7d05-4675-83bf-a8286730036a",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "token": "CABSSA-ATT-1793876028356-060F389BC489",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-05T10:53:48.356Z",
+      "expires_at": "2026-11-05T11:23:48.356Z",
+      "is_active": false
+    },
+    {
+      "id": "47cb35b6-8026-4892-bdd8-344fe1384b78",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "token": "CABSSA-ATT-1793876621073-5B3C8FD7E3B5",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-05T11:03:41.073Z",
+      "expires_at": "2026-11-05T11:33:41.073Z",
+      "is_active": true
+    },
+    {
+      "id": "cc3daf57-e296-4ac7-84a1-62c4ffe75c4b",
+      "event_id": "6551cad3-9f05-499c-954e-9bf12dbfe0dd",
+      "token": "CABSSA-ATT-1793876666833-9C38F62050A1",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-05T11:04:26.833Z",
+      "expires_at": "2026-11-05T11:34:26.833Z",
+      "is_active": true
+    }
+  ],
+  "attendance": [
+    {
+      "id": "att-001",
+      "event_id": "33333333-3333-3333-3333-333333333303",
+      "member_id": "22222222-2222-2222-2222-222222222202",
+      "session_id": null,
+      "marked_at": "2026-10-20T10:05:00.000Z",
+      "verification_method": "MANUAL_OVERRIDE",
+      "status": "Present",
+      "verified_by": "22222222-2222-2222-2222-222222222201"
+    },
+    {
+      "id": "att-002",
+      "event_id": "33333333-3333-3333-3333-333333333303",
+      "member_id": "22222222-2222-2222-2222-222222222203",
+      "session_id": null,
+      "marked_at": "2026-10-20T10:07:30.000Z",
+      "verification_method": "QR_SCAN",
+      "status": "Present",
+      "verified_by": null
+    },
+    {
+      "id": "e50563b1-d3d0-4835-b33e-620cbe2c8a83",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "member_id": "22222222-2222-2222-2222-222222222203",
+      "session_id": "41d1ddaf-7d05-4675-83bf-a8286730036a",
+      "marked_at": "2026-11-05T10:53:48.370Z",
+      "verification_method": "QR_SCAN",
+      "status": "Present",
+      "verified_by": null
+    },
+    {
+      "id": "4b01572d-8d24-4535-9fff-f50a4c313ebe",
+      "event_id": "6551cad3-9f05-499c-954e-9bf12dbfe0dd",
+      "member_id": "22222222-2222-2222-2222-222222222203",
+      "session_id": "cc3daf57-e296-4ac7-84a1-62c4ffe75c4b",
+      "marked_at": "2026-11-05T11:04:26.841Z",
+      "verification_method": "QR_SCAN",
+      "status": "Present",
+      "verified_by": null
+    }
+  ],
+  "meeting_minutes": [
+    {
+      "id": "44444444-4444-4444-4444-444444444401",
+      "title": "Executive Core Planning Meet: Semester 2 Roadmap",
+      "meeting_date": "2026-11-02T16:00:00.000Z",
+      "agenda": "1. Finalization of Technical Sprint Dates\n2. Sponsorship package tiers for Corporate Partners\n3. Reverse QR attendance rollout for general body meetings",
+      "discussion_points": "Discussed corporate sponsorship deliverables with Finance Lead. Reviewed QR attendance scanner prototype with Tech Wing.",
+      "decisions_taken": "1. Approved 3-tier sponsorship package (Gold, Silver, Tech Partner).\n2. Deployed Reverse QR code generator across all upcoming committee meets.\n3. Logistics to reserve Central Auditorium by Friday.",
+      "announcements": "Next all-hands briefing scheduled for Monday 5 PM.",
+      "meeting_notes": "All domain leads must submit sprint estimates by Thursday midnight.",
+      "attendee_ids": [
+        "22222222-2222-2222-2222-222222222201",
+        "22222222-2222-2222-2222-222222222202",
+        "22222222-2222-2222-2222-222222222203",
+        "22222222-2222-2222-2222-222222222204"
+      ],
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-02T17:30:00.000Z",
+      "updated_at": "2026-11-02T17:30:00.000Z"
+    }
+  ],
+  "action_items": [
+    {
+      "id": "55555555-5555-5555-5555-555555555501",
+      "task_code": "TASK-101",
+      "title": "Configure Reverse QR Scanner in Clubdesk",
+      "description": "Implement front-camera QR scanner and token validation endpoint for the upcoming Tech Summit.",
+      "assigned_to": "22222222-2222-2222-2222-222222222203",
+      "meeting_id": "44444444-4444-4444-4444-444444444401",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "priority": "High",
+      "status": "Completed",
+      "assigned_date": "2026-11-02",
+      "due_date": "2026-11-08",
+      "completed_at": "2026-11-05T11:04:26.853Z",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-02T17:40:00.000Z",
+      "updated_at": "2026-11-05T11:04:26.853Z"
+    },
+    {
+      "id": "55555555-5555-5555-5555-555555555502",
+      "task_code": "TASK-102",
+      "title": "Design Tech Summit Delegate Badges & Lanyards",
+      "description": "Create print-ready 300 DPI SVG badges with individual participant QR codes and sponsor logos.",
+      "assigned_to": "22222222-2222-2222-2222-222222222204",
+      "meeting_id": "44444444-4444-4444-4444-444444444401",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "priority": "Urgent",
+      "status": "Open",
+      "assigned_date": "2026-11-02",
+      "due_date": "2026-11-09",
+      "completed_at": null,
+      "created_by": "22222222-2222-2222-2222-222222222202",
+      "created_at": "2026-11-02T17:45:00.000Z",
+      "updated_at": "2026-11-02T17:45:00.000Z"
+    },
+    {
+      "id": "55555555-5555-5555-5555-555555555503",
+      "task_code": "TASK-103",
+      "title": "Submit Auditorium Sound Permissions to Dean Office",
+      "description": "Draft and deliver formal letter signed by Faculty Coordinator for 1000W PA system and cordless mikes.",
+      "assigned_to": "22222222-2222-2222-2222-222222222205",
+      "meeting_id": "44444444-4444-4444-4444-444444444401",
+      "event_id": "33333333-3333-3333-3333-333333333301",
+      "priority": "Medium",
+      "status": "Completed",
+      "assigned_date": "2026-11-01",
+      "due_date": "2026-11-04",
+      "completed_at": "2026-11-04T15:20:00.000Z",
+      "created_by": "22222222-2222-2222-2222-222222222201",
+      "created_at": "2026-11-01T10:00:00.000Z",
+      "updated_at": "2026-11-04T15:20:00.000Z"
+    }
+  ],
+  "activity_logs": [
+    {
+      "id": "fb2719f5-09a5-424c-83b8-4c0ff7b60a2e",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:06:06.237Z"
+    },
+    {
+      "id": "bdc67a8c-231a-46df-8de6-824c4d9e3370",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "TASK_STATUS_UPDATED",
+      "entity_type": "TASK",
+      "entity_id": "55555555-5555-5555-5555-555555555501",
+      "details": {
+        "status": "Completed"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.857Z"
+    },
+    {
+      "id": "718caef0-4d11-44f6-801f-b310c77758d0",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "ATTENDANCE_MARKED",
+      "entity_type": "EVENT",
+      "entity_id": "6551cad3-9f05-499c-954e-9bf12dbfe0dd",
+      "details": {
+        "member": "Rohan Verma",
+        "prn": "PRN202504288"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.845Z"
+    },
+    {
+      "id": "ad7166ec-fa08-4689-b292-ee4e72d50208",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "ATTENDANCE_QR_GENERATED",
+      "entity_type": "EVENT",
+      "entity_id": "6551cad3-9f05-499c-954e-9bf12dbfe0dd",
+      "details": {
+        "token": "CABSSA-ATT-1793876666833-9C38F62050A1",
+        "expires_at": "2026-11-05T11:34:26.833Z"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.836Z"
+    },
+    {
+      "id": "a385ca95-adc3-4259-8449-e15513b5d520",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "EVENT_CREATED",
+      "entity_type": "EVENT",
+      "entity_id": "6551cad3-9f05-499c-954e-9bf12dbfe0dd",
+      "details": {
+        "title": "Automated Test Event 1793876666830"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.827Z"
+    },
+    {
+      "id": "9d38c4a1-367d-4c38-a011-a4ad3c329493",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "MEMBER_UPDATED",
+      "entity_type": "MEMBER",
+      "entity_id": "6bafa653-f971-47ac-92e0-a014c6072b34",
+      "details": {
+        "full_name": "Tanvi Deshmukh",
+        "prn": "PRN76666807"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.816Z"
+    },
+    {
+      "id": "0d609e42-5bc0-4a24-a34f-b3ff9177d335",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "MEMBER_CREATED",
+      "entity_type": "MEMBER",
+      "entity_id": "6bafa653-f971-47ac-92e0-a014c6072b34",
+      "details": {
+        "member_id": "CABSSA-2026-008",
+        "full_name": "Tanvi Deshmukh",
+        "prn_number": "PRN76666807",
+        "role": "CORE_MEMBER"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.801Z"
+    },
+    {
+      "id": "1ec5e375-a49d-4945-8912-b4fc72926517",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222203",
+      "details": {
+        "email": "member@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.781Z"
+    },
+    {
+      "id": "cb9de6a7-9154-4ebf-9a2b-4a9014e2e6ef",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:04:26.775Z"
+    },
+    {
+      "id": "76174d3b-5dc0-440c-bddf-7a814eb56c57",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "TASK_STATUS_UPDATED",
+      "entity_type": "TASK",
+      "entity_id": "55555555-5555-5555-5555-555555555501",
+      "details": {
+        "status": "Completed"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:03:41.090Z"
+    },
+    {
+      "id": "a30e561b-5180-46bf-b3e5-a5d64abe0480",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "ATTENDANCE_QR_GENERATED",
+      "entity_type": "EVENT",
+      "entity_id": "33333333-3333-3333-3333-333333333301",
+      "details": {
+        "token": "CABSSA-ATT-1793876621073-5B3C8FD7E3B5",
+        "expires_at": "2026-11-05T11:33:41.073Z"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:03:41.076Z"
+    },
+    {
+      "id": "586b56b7-47bf-4503-abb0-6bca3a9b2993",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "MEMBER_UPDATED",
+      "entity_type": "MEMBER",
+      "entity_id": "9e43c7e8-b8a6-440e-ace2-a4118154fab9",
+      "details": {
+        "full_name": "Tanvi Deshmukh",
+        "prn": "PRN76621052"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:03:41.068Z"
+    },
+    {
+      "id": "5329db0e-a105-43aa-b1b9-167eaaa22801",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "MEMBER_CREATED",
+      "entity_type": "MEMBER",
+      "entity_id": "9e43c7e8-b8a6-440e-ace2-a4118154fab9",
+      "details": {
+        "member_id": "CABSSA-2026-007",
+        "full_name": "Tanvi Deshmukh",
+        "prn_number": "PRN76621052",
+        "role": "CORE_MEMBER"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:03:41.058Z"
+    },
+    {
+      "id": "3e761900-c7f9-474b-a535-f1473d32358b",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222203",
+      "details": {
+        "email": "member@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:03:41.042Z"
+    },
+    {
+      "id": "a82603f4-0871-4d5d-9f11-e36a6f7215a2",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T11:03:41.036Z"
+    },
+    {
+      "id": "a393fd6a-bc83-46e9-a617-c2221410c939",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "TASK_STATUS_UPDATED",
+      "entity_type": "TASK",
+      "entity_id": "55555555-5555-5555-5555-555555555501",
+      "details": {
+        "status": "Completed"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.394Z"
+    },
+    {
+      "id": "0fc1a9ef-5533-4138-83e7-b09614953c63",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "ATTENDANCE_MARKED",
+      "entity_type": "EVENT",
+      "entity_id": "33333333-3333-3333-3333-333333333301",
+      "details": {
+        "member": "Rohan Verma",
+        "prn": "PRN202504288"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.376Z"
+    },
+    {
+      "id": "a0324b87-7f36-4ffc-ad82-7db668c39ff7",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "ATTENDANCE_QR_GENERATED",
+      "entity_type": "EVENT",
+      "entity_id": "33333333-3333-3333-3333-333333333301",
+      "details": {
+        "token": "CABSSA-ATT-1793876028356-060F389BC489",
+        "expires_at": "2026-11-05T11:23:48.356Z"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.362Z"
+    },
+    {
+      "id": "c30036c8-93e1-41e6-8dd6-d3d6b238f4b7",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "MEMBER_UPDATED",
+      "entity_type": "MEMBER",
+      "entity_id": "7d165bd6-c928-418b-88e0-e4549b660827",
+      "details": {
+        "full_name": "Tanvi Deshmukh",
+        "prn": "PRN76028333"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.348Z"
+    },
+    {
+      "id": "8ca3549f-924a-4557-bd91-cd08a3f774a4",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "MEMBER_CREATED",
+      "entity_type": "MEMBER",
+      "entity_id": "7d165bd6-c928-418b-88e0-e4549b660827",
+      "details": {
+        "member_id": "CABSSA-2026-006",
+        "full_name": "Tanvi Deshmukh",
+        "prn_number": "PRN76028333",
+        "role": "CORE_MEMBER"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.334Z"
+    },
+    {
+      "id": "0e27d4df-27c6-4289-973b-5660fcea3121",
+      "actor_id": "22222222-2222-2222-2222-222222222203",
+      "actor_name": "Rohan Verma",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222203",
+      "details": {
+        "email": "member@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.310Z"
+    },
+    {
+      "id": "f396de1e-336c-4c89-ba2f-c3beee653fa9",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:53:48.303Z"
+    },
+    {
+      "id": "dbd64d14-36ec-491d-8692-a88a0493caab",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:52:37.399Z"
+    },
+    {
+      "id": "e93f29a8-3693-46ab-85dd-3b405c51b594",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:52:20.845Z"
+    },
+    {
+      "id": "3b306033-cf95-4502-9427-d7635f7cdced",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "AUTH_LOGIN",
+      "entity_type": "USER",
+      "entity_id": "22222222-2222-2222-2222-222222222201",
+      "details": {
+        "email": "admin@cabssa.internal"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-11-05T10:52:09.009Z"
+    },
+    {
+      "id": "log-001",
+      "actor_id": "22222222-2222-2222-2222-222222222201",
+      "actor_name": "Prof. Rajesh Kulkarni",
+      "action": "SYSTEM_INITIALIZED",
+      "entity_type": "SYSTEM",
+      "entity_id": "ROOT",
+      "details": {
+        "message": "CABSSA Clubdesk initialized with 8 operational domains and security policies"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-10-01T09:00:00.000Z"
+    }
+  ]
+}
