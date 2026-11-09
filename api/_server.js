@@ -167,22 +167,14 @@ async function syncToSupabaseCloud(table, record, operation = 'upsert') {
 }
 
 function persistDb(table = null, record = null, operation = 'upsert') {
-  writeQueue = writeQueue.then(() => {
-    return new Promise((resolve, reject) => {
-      try {
-        saveDatabaseSync();
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
-    });
+  writeQueue = writeQueue.then(async () => {
+    saveDatabaseSync();
+    if (table && record) {
+      await syncToSupabaseCloud(table, record, operation);
+    }
   }).catch(err => {
     console.error('[DB WRITE ERROR]', err);
   });
-
-  if (table && record) {
-    syncToSupabaseCloud(table, record, operation).catch(() => {});
-  }
   return writeQueue;
 }
 
