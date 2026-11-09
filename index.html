@@ -31,6 +31,10 @@
     }
   </script>
 
+  <!-- QR Code Generator & Mobile Camera Scanner Engines -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -477,9 +481,16 @@
             </div>
 
             <div class="flex items-center space-x-2">
-              <button onclick="window.CABSSA_ATTENDANCE.openScannerModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition-all flex items-center space-x-1.5">
+              <button onclick="window.CABSSA_ATTENDANCE.openSelectEventForQRModal()" data-role-cohead class="px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-600/30 transition-all flex items-center space-x-1.5">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                </svg>
+                <span>Display Event QR Code</span>
+              </button>
+              <button onclick="window.CABSSA_ATTENDANCE.openScannerModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition-all flex items-center space-x-1.5">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 <span>Scan Attendance QR</span>
               </button>
@@ -1172,9 +1183,9 @@ Loading health status...
 
       <p id="qrModalEventTitle" class="text-xs font-bold text-violet-300">Event Title</p>
 
-      <!-- Canvas QR Rendering -->
-      <div class="p-3 rounded-2xl bg-black/80 border border-violet-500/30 flex items-center justify-center">
-        <canvas id="qrCanvas" class="w-56 h-56 rounded-xl"></canvas>
+      <!-- High-Resolution Standard Scannable QR Code -->
+      <div class="p-4 rounded-2xl bg-white border border-violet-500/40 flex items-center justify-center mx-auto shadow-xl shadow-violet-500/10">
+        <div id="qrcodeContainer" class="w-52 h-52 flex items-center justify-center"></div>
       </div>
 
       <div class="space-y-1 font-mono text-xs">
@@ -1204,11 +1215,11 @@ Loading health status...
         <button onclick="window.CABSSA_ATTENDANCE.closeScannerModal()" class="text-slate-400 hover:text-white">×</button>
       </div>
 
-      <!-- Camera Feed or Note -->
-      <div class="relative w-full h-44 rounded-xl bg-black/80 border border-white/[0.08] overflow-hidden flex items-center justify-center">
-        <video id="scannerVideo" class="w-full h-full object-cover" autoplay playsinline></video>
-        <p id="scannerCameraNote" class="absolute text-[11px] text-slate-400 font-mono text-center px-4">
-          Camera scanning enabled. If permission is blocked, enter token below.
+      <!-- Live Mobile Camera Viewfinder with Automatic Scanner -->
+      <div class="relative w-full rounded-2xl bg-black/90 border border-emerald-500/30 overflow-hidden shadow-inner">
+        <div id="html5qrReader" class="w-full overflow-hidden" style="min-height: 240px;"></div>
+        <p id="scannerCameraNote" class="text-[11px] text-slate-400 font-mono text-center py-2 px-3 border-t border-white/[0.06] bg-white/[0.02]">
+          Point your camera at the Host's QR Code to check in automatically
         </p>
       </div>
 
@@ -1225,6 +1236,33 @@ Loading health status...
         </button>
         <button type="button" id="submitManualTokenBtn" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-lg shadow-emerald-600/30">
           Submit Attendance Token
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SELECT EVENT FOR QR (Admin/Co-Head) -->
+  <div id="eventSelectForQRModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="w-full max-w-md bg-[#060B1E] border border-violet-500/40 rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <h3 class="font-bold text-white text-base">Display Event Check-In QR</h3>
+        <button onclick="window.CABSSA_ATTENDANCE.closeSelectEventForQRModal()" class="text-slate-400 hover:text-white">×</button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Select which committee meeting or event you want to display the check-in QR code for:
+      </p>
+      <div>
+        <label class="block text-slate-400 font-mono text-[11px] mb-1.5 uppercase">Select Event / Meeting *</label>
+        <select id="eventSelectForQRDropdown" class="w-full bg-slate-900 border border-slate-700 text-xs text-white rounded-xl p-3 focus:border-violet-500 outline-none font-mono">
+          <option value="">Select an event...</option>
+        </select>
+      </div>
+      <div class="flex items-center justify-end space-x-2 pt-2">
+        <button type="button" onclick="window.CABSSA_ATTENDANCE.closeSelectEventForQRModal()" class="py-2.5 px-4 rounded-xl bg-white/[0.06] text-slate-300 text-xs">
+          Cancel
+        </button>
+        <button type="button" onclick="window.CABSSA_ATTENDANCE.startQRFromSelectedEvent()" class="py-2.5 px-5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-violet-600/30">
+          Display QR Code
         </button>
       </div>
     </div>
