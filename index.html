@@ -986,8 +986,12 @@ Loading health status...
           </div>
 
           <div>
-            <label class="block text-slate-400 font-mono mb-1">PASSWORD *</label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-slate-400 font-mono">PASSWORD *</label>
+              <span class="text-[10px] text-violet-400 font-mono">Default: <code class="text-violet-300 font-bold">Cabssa@2026</code></span>
+            </div>
             <input type="password" id="loginPassword" required placeholder="••••••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-violet-500 outline-none font-mono">
+            <span class="text-[10px] text-slate-500 font-mono block mt-1">First-time login? Use default password <strong class="text-violet-300">Cabssa@2026</strong></span>
           </div>
 
           <button type="submit" id="loginSubmitBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 font-semibold text-xs text-white shadow-lg shadow-violet-600/30 transition-all flex items-center justify-center space-x-1.5">
@@ -997,9 +1001,8 @@ Loading health status...
             </svg>
           </button>
 
-          <p class="text-center text-[11px] text-slate-400 pt-1">
-            Need initial setup? 
-            <button type="button" id="toggleToSetupBtn" class="text-violet-300 hover:underline font-semibold ml-1">Create Administrator</button>
+          <p class="text-center text-[11px] text-slate-500 pt-1">
+            Protected Committee Workspace &middot; Authorized Members Only
           </p>
         </form>
       </div>

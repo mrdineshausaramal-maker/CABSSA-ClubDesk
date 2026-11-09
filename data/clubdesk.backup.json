@@ -6,9 +6,8 @@
       "code": "TECH",
       "description": "Web dev, fullstack architecture, competitive coding, hackathons, cloud ops and system maintenance.",
       "icon": "code",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111102",
@@ -16,9 +15,8 @@
       "code": "DESIGN",
       "description": "Branding, Figma design systems, motion graphics, posters, badges and event banners.",
       "icon": "palette",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111103",
@@ -26,9 +24,8 @@
       "code": "REG",
       "description": "Desk check-ins, ticketing coordination, delegate kits, crowd ingress and attendee validation.",
       "icon": "clipboard-list",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111104",
@@ -36,9 +33,8 @@
       "code": "FINANCE",
       "description": "Budget auditing, corporate outreach, invoices, vendor disbursements and sponsorship decks.",
       "icon": "coins",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111105",
@@ -46,9 +42,8 @@
       "code": "MEDIA",
       "description": "Photography, live coverage, reel production, video editing, interviews and podcast series.",
       "icon": "video",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111106",
@@ -56,9 +51,8 @@
       "code": "LOGISTICS",
       "description": "Auditorium staging, sound/light tech, mikes, transport, campus permissions and power backups.",
       "icon": "truck",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111107",
@@ -66,9 +60,8 @@
       "code": "DOCS",
       "description": "Official notices, minutes of meeting, permissions, formal proposals, and annual report archives.",
       "icon": "file-text",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     },
     {
       "id": "11111111-1111-1111-1111-111111111108",
@@ -76,19 +69,17 @@
       "code": "CONTENT",
       "description": "Copywriting, technical blogs, scripts, newsletter editions, captions and social handles.",
       "icon": "feather",
-      "head_id": null,
-      "co_head_id": null,
-      "created_at": "2026-07-01T09:00:00.000Z"
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     }
   ],
   "profiles": [
     {
       "id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "auth_user_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
+      "auth_user_id": null,
       "member_id": "CABSSA-2026-001",
       "full_name": "Dinesh Ausaramal",
       "email": "mr.dineshausaramal@gmail.com",
-      "password_hash": "Shru_nesh@9158",
       "contact_number": "8080428634",
       "prn_number": "2526UCB026",
       "roll_number": "02",
@@ -99,11 +90,12 @@
       "domain_id": null,
       "personal_vehicle": false,
       "dob": null,
-      "profile_photo_url": "",
-      "date_of_joining": "2026-11-05",
+      "profile_photo_url": null,
+      "date_of_joining": "2026-11-09",
       "status": "Active",
-      "created_at": "2026-11-05T11:56:50.488Z",
-      "updated_at": "2026-11-05T11:56:50.488Z"
+      "password_hash": "Shru_nesh@9158",
+      "created_at": "2026-11-09T19:15:12.957779+00:00",
+      "updated_at": "2026-11-09T19:15:12.957779+00:00"
     }
   ],
   "events_shifts": [
@@ -129,58 +121,15 @@
   "action_items": [],
   "activity_logs": [
     {
-      "id": "198e6aeb-7bb5-48fb-a4da-39559d64118c",
-      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "actor_name": "Dinesh Ausaramal",
-      "action": "AUTH_LOGIN",
-      "entity_type": "USER",
-      "entity_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "details": {
-        "email": "mr.dineshausaramal@gmail.com"
-      },
-      "ip_address": "127.0.0.1",
-      "created_at": "2026-11-05T13:27:38.681Z"
-    },
-    {
-      "id": "0fbe4e7e-c260-4ad6-8fb5-f2a120fde6df",
-      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "actor_name": "Dinesh Ausaramal",
-      "action": "EVENT_CREATED",
-      "entity_type": "EVENT",
-      "entity_id": "0766a54a-827f-4365-a2ae-c9c16fc66463",
-      "details": {
-        "title": "Batch Ceremony"
-      },
-      "ip_address": "127.0.0.1",
-      "created_at": "2026-11-05T12:00:00.431Z"
-    },
-    {
-      "id": "020de73e-ec46-43f0-8b04-a5166928a7cc",
-      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "actor_name": "Dinesh Ausaramal",
-      "action": "EVENT_CREATED",
-      "entity_type": "EVENT",
-      "entity_id": "08cae8a5-1478-44bc-9ad8-d0ef74455e3c",
-      "details": {
-        "title": "Batch Ceremony"
-      },
-      "ip_address": "127.0.0.1",
-      "created_at": "2026-11-05T12:00:00.416Z"
-    },
-    {
-      "id": "d6743810-9dc9-449f-81de-a567051affa1",
-      "actor_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "actor_name": "Dinesh Ausaramal",
-      "action": "SYSTEM_BOOTSTRAPPED_ADMIN",
+      "id": "df649671-00d0-4210-8654-10e7417ec64c",
+      "actor_id": null,
+      "action": "TEST_INIT",
       "entity_type": "SYSTEM",
-      "entity_id": "7c498b5f-8329-4cd0-aba9-5af3061d84d2",
-      "details": {
-        "member_id": "CABSSA-2026-001",
-        "full_name": "Dinesh Ausaramal",
-        "email": "mr.dineshausaramal@gmail.com"
+      "entity_id": null,
+      "payload": {
+        "status": "Connected to Supabase"
       },
-      "ip_address": "127.0.0.1",
-      "created_at": "2026-11-05T11:56:50.497Z"
+      "created_at": "2026-11-09T19:17:07.644865+00:00"
     }
   ]
 }

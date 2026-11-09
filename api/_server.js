@@ -95,7 +95,78 @@ function saveDatabaseSync() {
   } catch (e) {}
 }
 
-function persistDb() {
+// ----------------------------------------------------------------------------
+// SUPABASE CLOUD DATABASE SYNC ENGINE (PERSISTENCE LAYER)
+// ----------------------------------------------------------------------------
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://aymezeqrpsoivyldmbji.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_9sO-YXyZccBgNZMmVm7pKA_E8qnLlEQ';
+
+let isSupabaseInitialSynced = false;
+
+async function syncFromSupabaseCloud() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  try {
+    const headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
+    };
+    const tables = [
+      'domains', 'profiles', 'events_shifts', 'event_members',
+      'attendance_qr_sessions', 'attendance', 'meeting_minutes',
+      'action_items', 'activity_logs'
+    ];
+
+    const results = await Promise.allSettled(
+      tables.map(t => fetch(`${SUPABASE_URL}/rest/v1/${t}?select=*`, { headers }).then(r => r.ok ? r.json() : null))
+    );
+
+    tables.forEach((t, i) => {
+      if (results[i].status === 'fulfilled' && Array.isArray(results[i].value)) {
+        if (results[i].value.length > 0 || t === 'profiles' || t === 'domains') {
+          db[t] = results[i].value;
+        }
+      }
+    });
+
+    isSupabaseInitialSynced = true;
+    saveDatabaseSync();
+    console.log('[SUPABASE] Synced all tables successfully from Cloud PostgreSQL');
+  } catch (err) {
+    console.warn('[SUPABASE SYNC WARNING]', err.message);
+  }
+}
+
+async function syncToSupabaseCloud(table, record, operation = 'upsert') {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !record) return;
+  try {
+    const headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    };
+
+    if (operation === 'upsert') {
+      headers['Prefer'] = 'resolution=merge-duplicates';
+      await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(record)
+      });
+    } else if (operation === 'delete') {
+      const id = typeof record === 'object' ? record.id : record;
+      if (id) {
+        await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers
+        });
+      }
+    }
+  } catch (err) {
+    console.warn(`[SUPABASE CLOUD WRITE ERROR on ${table}]`, err.message);
+  }
+}
+
+function persistDb(table = null, record = null, operation = 'upsert') {
   writeQueue = writeQueue.then(() => {
     return new Promise((resolve, reject) => {
       try {
@@ -108,10 +179,15 @@ function persistDb() {
   }).catch(err => {
     console.error('[DB WRITE ERROR]', err);
   });
+
+  if (table && record) {
+    syncToSupabaseCloud(table, record, operation).catch(() => {});
+  }
   return writeQueue;
 }
 
 loadDatabase();
+syncFromSupabaseCloud().catch(() => {});
 
 // ----------------------------------------------------------------------------
 // AUTHENTICATION & SECURITY HELPERS
@@ -248,6 +324,9 @@ async function handleRequest(req, res) {
     // API ROUTING
     // ------------------------------------------------------------------------
     if (pathname.startsWith('/api/')) {
+      if (!isSupabaseInitialSynced) {
+        await syncFromSupabaseCloud();
+      }
 
       // 1. HEALTH CHECK & SYSTEM STATUS
       if (pathname === '/api/health' && method === 'GET') {
@@ -626,7 +705,7 @@ async function handleRequest(req, res) {
           };
 
           db.profiles.push(newMember);
-          await persistDb();
+          await persistDb('profiles', newMember, 'upsert');
 
           recordActivity(caller, 'MEMBER_CREATED', 'MEMBER', newId, {
             member_id: memberId,
@@ -738,7 +817,7 @@ async function handleRequest(req, res) {
 
           existingMember.updated_at = new Date().toISOString();
           db.profiles[memberIndex] = existingMember;
-          await persistDb();
+          await persistDb('profiles', existingMember, 'upsert');
 
           recordActivity(caller, 'MEMBER_UPDATED', 'MEMBER', existingMember.id, {
             full_name: existingMember.full_name,
@@ -763,16 +842,16 @@ async function handleRequest(req, res) {
 
           if (permanent) {
             db.profiles.splice(memberIndex, 1);
+            await persistDb('profiles', existingMember, 'delete');
             recordActivity(caller, 'MEMBER_DELETED', 'MEMBER', memberId, { full_name: existingMember.full_name }, req);
           } else {
             // Deactivation preserves history
             existingMember.status = 'Inactive';
             existingMember.updated_at = new Date().toISOString();
             db.profiles[memberIndex] = existingMember;
+            await persistDb('profiles', existingMember, 'upsert');
             recordActivity(caller, 'MEMBER_DEACTIVATED', 'MEMBER', memberId, { full_name: existingMember.full_name }, req);
           }
-
-          await persistDb();
 
           return sendJson(res, 200, {
             success: true,
@@ -957,7 +1036,7 @@ async function handleRequest(req, res) {
           };
 
           db.events_shifts.push(newEvent);
-          await persistDb();
+          await persistDb('events_shifts', newEvent, 'upsert');
 
           recordActivity(caller, 'EVENT_CREATED', 'EVENT', newEvent.id, { title: newEvent.title }, req);
           return sendJson(res, 201, { success: true, message: 'Event created', data: newEvent });
@@ -1030,7 +1109,7 @@ async function handleRequest(req, res) {
             ...body,
             updated_at: new Date().toISOString()
           };
-          await persistDb();
+          await persistDb('events_shifts', db.events_shifts[idx], 'upsert');
           return sendJson(res, 200, { success: true, message: 'Event updated', data: db.events_shifts[idx] });
         }
 
@@ -1043,7 +1122,7 @@ async function handleRequest(req, res) {
           db.events_shifts = db.events_shifts.filter(e => e.id !== eventId);
           db.event_members = db.event_members.filter(em => em.event_id !== eventId);
           db.attendance = db.attendance.filter(a => a.event_id !== eventId);
-          await persistDb();
+          await persistDb('events_shifts', eventId, 'delete');
           return sendJson(res, 200, { success: true, message: 'Event and related records removed.' });
         }
       }
@@ -1156,7 +1235,7 @@ async function handleRequest(req, res) {
         };
 
         db.attendance.push(newAttendance);
-        await persistDb();
+        await persistDb('attendance', newAttendance, 'upsert');
 
         recordActivity(caller, 'ATTENDANCE_MARKED', 'EVENT', session.event_id, {
           member: caller.full_name,
@@ -1202,7 +1281,7 @@ async function handleRequest(req, res) {
           });
         }
 
-        await persistDb();
+        await persistDb('attendance', existing || db.attendance[db.attendance.length - 1], 'upsert');
         return sendJson(res, 200, { success: true, message: 'Attendance status recorded.' });
       }
 
@@ -1254,7 +1333,7 @@ async function handleRequest(req, res) {
           };
 
           db.meeting_minutes.unshift(newMeeting);
-          await persistDb();
+          await persistDb('meeting_minutes', newMeeting, 'upsert');
 
           recordActivity(caller, 'MEETING_MINUTES_RECORDED', 'MEETING', newMeeting.id, { title: newMeeting.title }, req);
           return sendJson(res, 201, { success: true, message: 'Minutes of Meeting saved permanently.', data: newMeeting });
@@ -1283,7 +1362,7 @@ async function handleRequest(req, res) {
         if (body.attendee_ids) meeting.attendee_ids = body.attendee_ids;
         meeting.updated_at = new Date().toISOString();
 
-        await persistDb();
+        await persistDb('meeting_minutes', meeting, 'upsert');
         recordActivity(caller, 'MEETING_MINUTES_UPDATED', 'MEETING', meeting.id, { title: meeting.title }, req);
         return sendJson(res, 200, { success: true, message: 'Meeting minutes updated.', data: meeting });
       }
@@ -1302,7 +1381,7 @@ async function handleRequest(req, res) {
           return sendError(res, 404, 'Meeting not found.');
         }
 
-        await persistDb();
+        await persistDb('meeting_minutes', meetingId, 'delete');
         recordActivity(caller, 'MEETING_MINUTES_DELETED', 'MEETING', meetingId, {}, req);
         return sendJson(res, 200, { success: true, message: 'Meeting minutes deleted.' });
       }
@@ -1370,7 +1449,7 @@ async function handleRequest(req, res) {
           };
 
           db.action_items.push(newTask);
-          await persistDb();
+          await persistDb('action_items', newTask, 'upsert');
 
           recordActivity(caller, 'TASK_CREATED', 'TASK', newTask.id, { title: newTask.title, code: taskCode }, req);
           return sendJson(res, 201, { success: true, message: 'Action item assigned.', data: newTask });
@@ -1400,7 +1479,7 @@ async function handleRequest(req, res) {
           task.updated_at = new Date().toISOString();
         }
 
-        await persistDb();
+        await persistDb('action_items', task, 'upsert');
         recordActivity(caller, 'TASK_STATUS_UPDATED', 'TASK', task.id, { status: task.status }, req);
 
         return sendJson(res, 200, { success: true, message: 'Task status updated.', data: task });
@@ -1429,7 +1508,7 @@ async function handleRequest(req, res) {
         }
         task.updated_at = new Date().toISOString();
 
-        await persistDb();
+        await persistDb('action_items', task, 'upsert');
         recordActivity(caller, 'TASK_UPDATED', 'TASK', task.id, { title: task.title }, req);
         return sendJson(res, 200, { success: true, message: 'Action item updated.', data: task });
       }
@@ -1448,7 +1527,7 @@ async function handleRequest(req, res) {
           return sendError(res, 404, 'Task not found.');
         }
 
-        await persistDb();
+        await persistDb('action_items', taskId, 'delete');
         recordActivity(caller, 'TASK_DELETED', 'TASK', taskId, {}, req);
         return sendJson(res, 200, { success: true, message: 'Task deleted successfully.' });
       }
