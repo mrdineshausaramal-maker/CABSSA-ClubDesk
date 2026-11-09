@@ -1,11 +1,11 @@
 'use strict';
 
 /**
- * CABSSA Clubdesk — Vercel Serverless Function Adapter
- * Routes incoming serverless HTTP requests to the centralized backend request handler.
+ * CABSSA Clubdesk — Root API Vercel Serverless Function
+ * Handles requests to /api
  */
-const appHandler = require('../server.js');
+const handleRequest = require('./_server.js');
 
-module.exports = (req, res) => {
-  return appHandler(req, res);
+module.exports = async (req, res) => {
+  return handleRequest(req, res);
 };
