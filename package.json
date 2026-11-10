@@ -1,13 +1,36 @@
 {
   "name": "cabssa-clubdesk",
-  "version": "2.5.0",
-  "description": "CABSSA Clubdesk — Internal Club Management System",
+  "version": "2.6.3",
+  "description": "CABSSA Clubdesk — Unified Executive Workspace & Internal Management System for Computer Science & Business Systems Association",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "generate-assets": "node scripts/generate-assets.js",
     "test": "node tests/setup.test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrdineshausaramal-maker/CABSSA-ClubDesk.git"
+  },
+  "keywords": [
+    "cabssa",
+    "clubdesk",
+    "csbs",
+    "student-association",
+    "attendance-system",
+    "reverse-qr",
+    "supabase-postgresql",
+    "vercel-serverless",
+    "vanilla-javascript",
+    "rbac"
+  ],
+  "author": "Dinesh Ausaramal <mr.dineshausaramal@gmail.com> & CABSSA Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mrdineshausaramal-maker/CABSSA-ClubDesk/issues"
+  },
+  "homepage": "https://cabssa-clubdesk.vercel.app",
   "engines": {
     "node": ">=18.0.0"
   }
