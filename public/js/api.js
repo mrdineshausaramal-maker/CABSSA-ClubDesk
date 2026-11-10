@@ -5,10 +5,10 @@
 (() => {
   'use strict';
 
-  let currentToken = window.sessionStorage.getItem('cabssa_token') || '';
+  let currentToken = window.localStorage.getItem('cabssa_token') || window.sessionStorage.getItem('cabssa_token') || '';
   let currentUser = null;
   try {
-    const rawUser = window.sessionStorage.getItem('cabssa_user');
+    const rawUser = window.localStorage.getItem('cabssa_user') || window.sessionStorage.getItem('cabssa_user');
     if (rawUser) currentUser = JSON.parse(rawUser);
   } catch (e) {}
 
@@ -86,11 +86,18 @@
       currentToken = token || '';
       currentUser = user || null;
       if (token) {
-        window.sessionStorage.setItem('cabssa_token', token);
-        window.sessionStorage.setItem('cabssa_user', JSON.stringify(user));
+        try { window.localStorage.setItem('cabssa_token', token); } catch (e) {}
+        try { window.localStorage.setItem('cabssa_user', JSON.stringify(user)); } catch (e) {}
+        try { window.sessionStorage.setItem('cabssa_token', token); } catch (e) {}
+        try { window.sessionStorage.setItem('cabssa_user', JSON.stringify(user)); } catch (e) {}
       } else {
-        window.sessionStorage.removeItem('cabssa_token');
-        window.sessionStorage.removeItem('cabssa_user');
+        try { window.localStorage.removeItem('cabssa_token'); } catch (e) {}
+        try { window.localStorage.removeItem('cabssa_user'); } catch (e) {}
+        try { window.sessionStorage.removeItem('cabssa_token'); } catch (e) {}
+        try { window.sessionStorage.removeItem('cabssa_user'); } catch (e) {}
+      }
+      if (window.CABSSA_AUTH) {
+        window.CABSSA_AUTH.user = currentUser;
       }
     },
 

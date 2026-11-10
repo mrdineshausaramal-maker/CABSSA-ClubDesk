@@ -216,7 +216,12 @@
       this.openLoginModal();
     },
 
+    get currentUser() {
+      return this.user || (window.CABSSA_API && window.CABSSA_API.user);
+    },
+
     updateUI() {
+      this.user = this.currentUser;
       const loggedInElements = document.querySelectorAll('[data-auth-required]');
       const guestElements = document.querySelectorAll('[data-guest-only]');
       const adminElements = document.querySelectorAll('[data-role-admin]');
@@ -265,8 +270,10 @@
     },
 
     requireAuth() {
-      if (!this.user) {
+      const u = this.currentUser;
+      if (!u) {
         this.openLoginModal();
+        window.CABSSA_TOAST.show('Please sign in to continue.', 'warning');
         return false;
       }
       return true;
@@ -274,7 +281,8 @@
 
     requireAdmin() {
       if (!this.requireAuth()) return false;
-      if (this.user.role !== 'ADMIN') {
+      const u = this.currentUser;
+      if (u.role !== 'ADMIN') {
         window.CABSSA_TOAST.show('Access Denied: This operation requires Administrator privileges.', 'error');
         return false;
       }
@@ -283,7 +291,8 @@
 
     requireCoHead() {
       if (!this.requireAuth()) return false;
-      if (this.user.role !== 'ADMIN' && this.user.role !== 'CO_HEAD') {
+      const u = this.currentUser;
+      if (u.role !== 'ADMIN' && u.role !== 'CO_HEAD') {
         window.CABSSA_TOAST.show('Access Denied: This operation requires Co-Head or Admin privileges.', 'error');
         return false;
       }

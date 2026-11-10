@@ -146,6 +146,7 @@
     if (!user) {
       window.CABSSA_AUTH.openLoginModal();
     } else {
+      window.CABSSA_AUTH.user = user;
       window.CABSSA_AUTH.updateUI();
     }
 
