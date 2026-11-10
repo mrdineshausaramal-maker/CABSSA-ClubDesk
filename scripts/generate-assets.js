@@ -41,3 +41,13 @@ module.exports = ${JSON.stringify(assets, null, 2)};
 
 fs.writeFileSync(path.join(libDir, 'embedded-assets.js'), outContent, 'utf8');
 console.log('Successfully generated lib/embedded-assets.js with', Object.keys(assets).length, 'assets.');
+
+// 4. Sync files to public directory so Vercel edge always serves the latest code
+const publicDir = path.join(baseDir, 'public');
+fs.mkdirSync(publicDir, { recursive: true });
+fs.copyFileSync(path.join(baseDir, 'index.html'), path.join(publicDir, 'index.html'));
+if (fs.existsSync(path.join(baseDir, 'logo.png'))) {
+  fs.copyFileSync(path.join(baseDir, 'logo.png'), path.join(publicDir, 'logo.png'));
+}
+fs.cpSync(path.join(baseDir, 'js'), path.join(publicDir, 'js'), { recursive: true, force: true });
+console.log('Successfully synced index.html, logo.png, and js/ into public/ directory.');

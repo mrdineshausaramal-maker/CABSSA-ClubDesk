@@ -1,6 +1,6 @@
 /**
  * CABSSA Clubdesk — QR Code Attendance System (Reverse QR)
- * Time-limited cryptographically validated attendance recording with duplicate prevention.
+ * High-speed automatic camera scanning with Html5Qrcode & standard QRCode generation
  */
 (() => {
   'use strict';
@@ -8,7 +8,9 @@
   let currentAttendanceList = [];
   let qrExpiryTimer = null;
   let activeQrSession = null;
-  let videoStream = null;
+  let html5QrScanner = null;
+  let qrCodeGenerator = null;
+  let isScanningActive = false;
 
   const AttendanceModule = {
     async init() {
@@ -19,14 +21,29 @@
 
     async loadEventsDropdown() {
       const sel = document.getElementById('attendanceEventFilter');
-      if (!sel) return;
+      const qrSel = document.getElementById('eventSelectForQRDropdown');
       try {
         const events = await window.CABSSA_API.getEvents();
-        sel.innerHTML = '<option value="">All Events & Meets</option>';
-        events.forEach(ev => {
-          sel.innerHTML += `<option value="${ev.id}">${escapeHtml(ev.title)} (${ev.event_date})</option>`;
-        });
-      } catch (e) {}
+        if (sel) {
+          sel.innerHTML = '<option value="">All Events & Meets</option>';
+          events.forEach(ev => {
+            sel.innerHTML += `<option value="${ev.id}">${escapeHtml(ev.title)} (${ev.event_date})</option>`;
+          });
+        }
+        if (qrSel) {
+          qrSel.innerHTML = '<option value="general" selected>⚡ Today’s Daily Club Session / General Attendance</option>';
+          events.forEach(ev => {
+            qrSel.innerHTML += `<option value="${ev.id}">${escapeHtml(ev.title)} (${ev.event_date}) [${ev.status}]</option>`;
+          });
+        }
+        return events;
+      } catch (e) {
+        console.warn('Failed to load events for dropdowns:', e);
+        if (qrSel) {
+          qrSel.innerHTML = '<option value="general" selected>⚡ Today’s Daily Club Session / General Attendance</option>';
+        }
+        return [];
+      }
     },
 
     bindEvents() {
@@ -94,13 +111,13 @@
                 ${time}
               </td>
               <td class="py-3 px-4">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${isQr ? 'REVERSE QR' : 'MANUAL'}">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${isQr ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-slate-500/20 text-slate-300 border border-slate-500/30'}">
                   ${isQr ? 'REVERSE QR' : 'MANUAL'}
                 </span>
               </td>
               <td class="py-3 px-4">
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  ${escapeHtml(a.status)}
+                  ${escapeHtml(a.status || 'Present')}
                 </span>
               </td>
             </tr>
@@ -112,31 +129,100 @@
     },
 
     // ------------------------------------------------------------------------
-    // REVERSE QR GENERATION (Admin/Co-Head)
+    // REVERSE QR GENERATION & EVENT SELECTION (Host Side - Admin / Co-Head)
     // ------------------------------------------------------------------------
-    async openGenerateQRModal(eventId, eventTitle) {
+    async openSelectEventForQRModal(eventId = 'general') {
+      return this.openGenerateQRModal(eventId);
+    },
+
+    closeSelectEventForQRModal() {
+      this.closeGenerateQRModal();
+    },
+
+    async startQRFromSelectedEvent() {
+      const sel = document.getElementById('qrModalEventSelector') || document.getElementById('eventSelectForQRDropdown');
+      const eventId = (sel && sel.value) ? sel.value : 'general';
+      await this.openGenerateQRModal(eventId);
+    },
+
+    async openGenerateQRModal(eventId = 'general') {
       if (!window.CABSSA_AUTH.requireCoHead()) return;
 
       const modal = document.getElementById('qrGeneratorModal');
-      const titleEl = document.getElementById('qrModalEventTitle');
+      const eventSelector = document.getElementById('qrModalEventSelector');
       const tokenDisplay = document.getElementById('qrTokenDisplay');
       const timerDisplay = document.getElementById('qrTimerDisplay');
+      const qrContainer = document.getElementById('qrcodeContainer');
 
-      if (titleEl) titleEl.textContent = eventTitle || 'CABSSA Committee Event';
       if (tokenDisplay) tokenDisplay.textContent = 'Generating cryptographic session...';
+      if (qrContainer) {
+        qrContainer.innerHTML = `
+          <div class="flex flex-col items-center justify-center p-6 space-y-3">
+            <svg class="w-8 h-8 text-violet-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="text-xs text-slate-400 font-mono">Generating secure QR code...</span>
+          </div>
+        `;
+      }
 
       if (modal) modal.classList.remove('hidden');
 
+      // Populate events dropdown in the QR modal
       try {
-        const res = await window.CABSSA_API.createQRSession(eventId, 30);
+        const events = await window.CABSSA_API.getEvents();
+        if (eventSelector) {
+          eventSelector.innerHTML = '<option value="general">⚡ Today’s Daily Club Session</option>';
+          events.forEach(ev => {
+            const isSel = ev.id === eventId ? 'selected' : '';
+            eventSelector.innerHTML += `<option value="${ev.id}" ${isSel}>${escapeHtml(ev.title)} (${ev.event_date})</option>`;
+          });
+          if (eventId) eventSelector.value = eventId;
+        }
+      } catch (e) {}
+
+      try {
+        const res = await window.CABSSA_API.createQRSession(eventId || 'general', 30);
         activeQrSession = res.data;
 
-        if (tokenDisplay) tokenDisplay.textContent = activeQrSession.token;
+        if (tokenDisplay) {
+          tokenDisplay.innerHTML = `
+            <div class="flex items-center justify-between gap-2 bg-white/[0.04] p-2 rounded-lg border border-white/[0.08]">
+              <span class="font-mono text-white text-[11px] truncate select-all">${activeQrSession.token}</span>
+              <button type="button" onclick="navigator.clipboard.writeText('${activeQrSession.token}').then(() => window.CABSSA_TOAST.show('Session token copied to clipboard!', 'success'))" class="px-2 py-1 text-[10px] font-sans font-bold bg-violet-600 hover:bg-violet-500 text-white rounded transition-colors shrink-0">Copy</button>
+            </div>
+          `;
+        }
 
-        // Render QR Code on canvas
-        this.renderQRCodeCanvas(activeQrSession.token);
+        // Render genuine high-resolution scannable QR Code using QR Server API with QRCodejs fallback
+        if (qrContainer) {
+          qrContainer.innerHTML = '';
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(activeQrSession.token)}`;
+          
+          const img = document.createElement('img');
+          img.src = qrUrl;
+          img.alt = 'Attendance QR Code';
+          img.className = 'w-48 h-48 object-contain rounded-xl mx-auto shadow-md border border-slate-200';
+          img.onerror = () => {
+            if (window.QRCode) {
+              qrContainer.innerHTML = '';
+              new window.QRCode(qrContainer, {
+                text: activeQrSession.token,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: window.QRCode.CorrectLevel.M
+              });
+            } else {
+              qrContainer.innerHTML = `<p class="text-xs text-slate-800 font-mono p-4 text-center">Session Token:<br><strong class="text-sm">${activeQrSession.token}</strong></p>`;
+            }
+          };
+          qrContainer.appendChild(img);
+        }
 
-        // Start countdown timer
+        // Start 30-minute countdown timer
         const expiryTime = new Date(activeQrSession.expires_at).getTime();
         clearInterval(qrExpiryTimer);
         qrExpiryTimer = setInterval(() => {
@@ -149,71 +235,21 @@
           if (remaining <= 0) {
             clearInterval(qrExpiryTimer);
             if (timerDisplay) timerDisplay.textContent = 'EXPIRED';
-            tokenDisplay.textContent = 'QR Session Expired';
+            if (tokenDisplay) tokenDisplay.textContent = 'QR Session Expired';
           }
         }, 1000);
 
       } catch (err) {
+        console.error('[QR GENERATE ERROR]', err);
         window.CABSSA_TOAST.show('Failed to create QR session: ' + err.message, 'error');
-        this.closeGenerateQRModal();
-      }
-    },
-
-    renderQRCodeCanvas(token) {
-      const canvas = document.getElementById('qrCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const size = canvas.width = canvas.height = 240;
-
-      // Draw stylized SVG/Canvas QR graphic representation with authentic token
-      ctx.fillStyle = '#060B1E';
-      ctx.fillRect(0, 0, size, size);
-
-      // Border glow
-      ctx.strokeStyle = '#8B5CF6';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(4, 4, size - 8, size - 8);
-
-      // Matrix Grid Pattern derived deterministically from token
-      const grid = 12;
-      const cellSize = (size - 32) / grid;
-      ctx.fillStyle = '#C4B5FD';
-
-      // Fixed 3 Corner Position Markers
-      this.drawPositionMarker(ctx, 16, 16, cellSize * 3);
-      this.drawPositionMarker(ctx, size - 16 - cellSize * 3, 16, cellSize * 3);
-      this.drawPositionMarker(ctx, 16, size - 16 - cellSize * 3, cellSize * 3);
-
-      // Data pseudo-modules
-      for (let r = 0; r < grid; r++) {
-        for (let c = 0; c < grid; c++) {
-          if ((r < 3 && c < 3) || (r < 3 && c >= grid - 3) || (r >= grid - 3 && c < 3)) continue;
-          const charCode = token.charCodeAt((r * grid + c) % token.length);
-          if (charCode % 2 === 0) {
-            ctx.fillRect(16 + c * cellSize, 16 + r * cellSize, cellSize - 1.5, cellSize - 1.5);
-          }
+        if (qrContainer) {
+          qrContainer.innerHTML = `
+            <div class="p-4 text-center text-rose-400 text-xs font-mono">
+              Error creating QR session: ${escapeHtml(err.message)}
+            </div>
+          `;
         }
       }
-
-      // Center Brand Shield
-      ctx.fillStyle = '#7C3AED';
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, 22, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 12px Inter';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('CAB', size / 2, size / 2);
-    },
-
-    drawPositionMarker(ctx, x, y, s) {
-      ctx.fillStyle = '#8B5CF6';
-      ctx.fillRect(x, y, s, s);
-      ctx.fillStyle = '#060B1E';
-      ctx.fillRect(x + 4, y + 4, s - 8, s - 8);
-      ctx.fillStyle = '#A78BFA';
-      ctx.fillRect(x + 8, y + 8, s - 16, s - 16);
     },
 
     closeGenerateQRModal() {
@@ -221,10 +257,11 @@
       const modal = document.getElementById('qrGeneratorModal');
       if (modal) modal.classList.add('hidden');
       activeQrSession = null;
+      qrCodeGenerator = null;
     },
 
     // ------------------------------------------------------------------------
-    // MEMBER SCANNER MODAL (Core Member scans)
+    // MEMBER SCANNER MODAL (Automatic Live Camera QR Decoder)
     // ------------------------------------------------------------------------
     openScannerModal() {
       if (!window.CABSSA_AUTH.requireAuth()) return;
@@ -232,90 +269,135 @@
       const modal = document.getElementById('qrScannerModal');
       const tokenInput = document.getElementById('scannerManualTokenInput');
       const resultBox = document.getElementById('scannerResultBox');
+      const readerEl = document.getElementById('html5qrReader');
 
       if (tokenInput) tokenInput.value = '';
       if (resultBox) resultBox.classList.add('hidden');
+      if (readerEl) readerEl.innerHTML = '';
       if (modal) modal.classList.remove('hidden');
 
-      // Attempt camera activation if available
-      this.startCameraStream();
+      this.startCameraScanner();
     },
 
-    startCameraStream() {
-      const video = document.getElementById('scannerVideo');
-      if (!video) return;
+    async startCameraScanner() {
+      const readerEl = document.getElementById('html5qrReader');
+      const note = document.getElementById('scannerCameraNote');
+      if (!readerEl) return;
 
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-          .then(stream => {
-            videoStream = stream;
-            video.srcObject = stream;
-            video.play();
-          })
-          .catch(err => {
-            console.warn('[CAMERA] Camera unavailable or permission denied:', err);
-            // Fallback gracefully to manual token entry
-            const note = document.getElementById('scannerCameraNote');
-            if (note) note.textContent = 'Camera stream inactive. Use quick token entry below.';
-          });
+      if (!window.Html5Qrcode) {
+        if (note) note.textContent = 'Scanner engine loading... If camera is unavailable, enter token below.';
+        return;
+      }
+
+      try {
+        if (html5QrScanner) {
+          try { await html5QrScanner.stop(); } catch (e) {}
+        }
+
+        html5QrScanner = new window.Html5Qrcode("html5qrReader");
+        isScanningActive = true;
+
+        const config = {
+          fps: 10,
+          qrbox: { width: 220, height: 220 },
+          aspectRatio: 1.0
+        };
+
+        await html5QrScanner.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText, decodedResult) => {
+            // QR Code Detected & Decoded!
+            console.log('[QR SCAN SUCCESS]', decodedText);
+            this.stopCameraScanner();
+            this.handleScannedToken(decodedText);
+          },
+          (errorMessage) => {
+            // ongoing scan frames
+          }
+        );
+
+        if (note) note.textContent = 'Point your camera directly at the Host’s QR Code on screen';
+      } catch (err) {
+        console.warn('[CAMERA SCAN START ERROR]', err);
+        isScanningActive = false;
+        if (note) {
+          note.innerHTML = `<span class="text-amber-400 font-semibold">Camera unavailable or permission denied.</span> Enter the Session Token manually below.`;
+        }
       }
     },
 
-    stopCameraStream() {
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-        videoStream = null;
+    async stopCameraScanner() {
+      if (html5QrScanner && isScanningActive) {
+        try {
+          await html5QrScanner.stop();
+        } catch (e) {}
+        isScanningActive = false;
       }
     },
 
     closeScannerModal() {
-      this.stopCameraStream();
+      this.stopCameraScanner();
       const modal = document.getElementById('qrScannerModal');
       if (modal) modal.classList.add('hidden');
     },
 
+    async handleScannedToken(token) {
+      const input = document.getElementById('scannerManualTokenInput');
+      if (input) input.value = token;
+      await this.submitToken(token);
+    },
+
     async handleManualTokenSubmit() {
       const input = document.getElementById('scannerManualTokenInput');
+      if (!input || !input.value.trim()) {
+        window.CABSSA_TOAST.show('Please enter or scan the QR Token.', 'warning');
+        return;
+      }
+      await this.submitToken(input.value.trim());
+    },
+
+    async submitToken(token) {
       const resultBox = document.getElementById('scannerResultBox');
       const submitBtn = document.getElementById('submitManualTokenBtn');
 
-      if (!input || !input.value.trim()) {
-        window.CABSSA_TOAST.show('Please enter or paste the QR Token.', 'warning');
-        return;
-      }
-
-      const token = input.value.trim();
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Validating on PostgreSQL Backend...';
+        submitBtn.textContent = 'Verifying Attendance Token...';
       }
 
       try {
         const res = await window.CABSSA_API.scanQR(token);
         if (resultBox) {
-          resultBox.className = 'p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono space-y-1';
+          resultBox.className = 'p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-300 text-xs font-mono space-y-1';
           resultBox.innerHTML = `
-            <p class="font-bold text-white flex items-center gap-1.5">
-              <span>Attendance Verified</span>
-            </p>
-            <p>${escapeHtml(res.message)}</p>
+            <div class="flex items-center gap-1.5 font-bold text-white text-sm">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Attendance Verified!</span>
+            </div>
+            <p>${escapeHtml(res.message || 'Check-in recorded successfully.')}</p>
             <p class="text-[10px] text-slate-400">Timestamp: ${new Date().toLocaleTimeString()}</p>
           `;
           resultBox.classList.remove('hidden');
         }
 
-        window.CABSSA_TOAST.show(res.message, 'success');
+        window.CABSSA_TOAST.show(res.message || 'Attendance verified successfully!', 'success');
         await this.renderAttendanceTable();
-        setTimeout(() => this.closeScannerModal(), 1800);
+        setTimeout(() => this.closeScannerModal(), 2000);
       } catch (err) {
         if (resultBox) {
-          resultBox.className = 'p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs font-mono space-y-1';
+          resultBox.className = 'p-3 rounded-xl bg-rose-950/40 border border-rose-500/50 text-rose-300 text-xs font-mono space-y-1';
           resultBox.innerHTML = `
-            <p class="font-bold text-white">Verification Failed</p>
+            <p class="font-bold text-white flex items-center gap-1.5">
+              <span>Verification Failed</span>
+            </p>
             <p>${escapeHtml(err.message)}</p>
           `;
           resultBox.classList.remove('hidden');
         }
+        window.CABSSA_TOAST.show(err.message, 'error');
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
