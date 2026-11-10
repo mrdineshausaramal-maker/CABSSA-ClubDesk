@@ -128,6 +128,12 @@ async function syncFromSupabaseCloud() {
       }
     });
 
+    if (db.attendance_qr_sessions) {
+      db.attendance_qr_sessions.forEach(s => {
+        if (!s.token && s.session_token) s.token = s.session_token;
+      });
+    }
+
     isSupabaseInitialSynced = true;
     saveDatabaseSync();
     console.log('[SUPABASE] Synced all tables successfully from Cloud PostgreSQL');
@@ -1153,10 +1159,39 @@ async function handleRequest(req, res) {
         }
 
         const body = await parseJsonBody(req);
-        const { event_id, validity_minutes = 60 } = body;
-        if (!event_id) return sendError(res, 400, 'event_id is required.');
+        let { event_id, validity_minutes = 60 } = body;
 
-        const token = `CABSSA-ATT-${Date.now()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
+        // Auto-find or create active event if not provided or 'general'
+        let targetEvent = null;
+        if (event_id && event_id !== 'general') {
+          targetEvent = db.events_shifts.find(e => e.id === event_id);
+        }
+
+        if (!targetEvent) {
+          const todayStr = new Date().toISOString().split('T')[0];
+          targetEvent = db.events_shifts.find(e => e.event_date === todayStr && e.title.includes('Daily Club Session'));
+          if (!targetEvent) {
+            targetEvent = {
+              id: crypto.randomUUID(),
+              title: `Daily Club Session (${todayStr})`,
+              description: 'General Daily Attendance & Club Session',
+              event_date: todayStr,
+              start_time: '09:00:00',
+              end_time: '18:00:00',
+              location: 'Campus / CSBS Dept',
+              domain_id: null,
+              status: 'Ongoing',
+              created_by: caller.id,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            db.events_shifts.push(targetEvent);
+            await persistDb('events_shifts', targetEvent, 'upsert');
+          }
+          event_id = targetEvent.id;
+        }
+
+        const token = `CABSSA-ATT-${Date.now()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
         const expiresAt = new Date(Date.now() + validity_minutes * 60000).toISOString();
 
         // Deactivate previous sessions for this event
@@ -1168,6 +1203,7 @@ async function handleRequest(req, res) {
           id: crypto.randomUUID(),
           event_id,
           token,
+          session_token: token,
           created_by: caller.id,
           created_at: new Date().toISOString(),
           expires_at: expiresAt,
@@ -1175,14 +1211,23 @@ async function handleRequest(req, res) {
         };
 
         db.attendance_qr_sessions.push(newSession);
-        await persistDb();
+        await persistDb('attendance_qr_sessions', {
+          id: newSession.id,
+          event_id: newSession.event_id,
+          session_token: newSession.token,
+          expires_at: newSession.expires_at,
+          is_active: newSession.is_active,
+          created_by: newSession.created_by,
+          created_at: newSession.created_at
+        }, 'upsert');
 
         recordActivity(caller, 'ATTENDANCE_QR_GENERATED', 'EVENT', event_id, { token, expires_at: expiresAt }, req);
 
         return sendJson(res, 201, {
           success: true,
           message: 'Attendance QR session created.',
-          data: newSession
+          data: newSession,
+          event: targetEvent
         });
       }
 
@@ -1196,7 +1241,7 @@ async function handleRequest(req, res) {
         if (!token) return sendError(res, 400, 'QR token is required.');
 
         // Validate session
-        const session = db.attendance_qr_sessions.find(s => s.token === token.trim());
+        const session = db.attendance_qr_sessions.find(s => (s.token === token.trim() || s.session_token === token.trim()));
         if (!session) {
           return sendError(res, 404, 'Invalid or unrecognized QR Code token.');
         }
@@ -1222,12 +1267,20 @@ async function handleRequest(req, res) {
           session_id: session.id,
           marked_at: new Date().toISOString(),
           verification_method: 'QR_SCAN',
+          scan_method: 'REVERSE_QR',
           status: 'Present',
           verified_by: null
         };
 
         db.attendance.push(newAttendance);
-        await persistDb('attendance', newAttendance, 'upsert');
+        await persistDb('attendance', {
+          id: newAttendance.id,
+          event_id: newAttendance.event_id,
+          member_id: newAttendance.member_id,
+          marked_at: newAttendance.marked_at,
+          verified_by: null,
+          scan_method: 'REVERSE_QR'
+        }, 'upsert');
 
         recordActivity(caller, 'ATTENDANCE_MARKED', 'EVENT', session.event_id, {
           member: caller.full_name,
@@ -1627,7 +1680,9 @@ async function handleRequest(req, res) {
     if (asset) {
       res.writeHead(200, {
         'Content-Type': asset.type,
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         'Access-Control-Allow-Origin': '*'
       });
       if (asset.isBase64) {

@@ -31,13 +31,18 @@
           });
         }
         if (qrSel) {
-          qrSel.innerHTML = '<option value="">Select an active event...</option>';
+          qrSel.innerHTML = '<option value="general" selected>⚡ Today’s Daily Club Session / General Attendance</option>';
           events.forEach(ev => {
             qrSel.innerHTML += `<option value="${ev.id}">${escapeHtml(ev.title)} (${ev.event_date}) [${ev.status}]</option>`;
           });
         }
+        return events;
       } catch (e) {
         console.warn('Failed to load events for dropdowns:', e);
+        if (qrSel) {
+          qrSel.innerHTML = '<option value="general" selected>⚡ Today’s Daily Club Session / General Attendance</option>';
+        }
+        return [];
       }
     },
 
@@ -124,71 +129,97 @@
     },
 
     // ------------------------------------------------------------------------
-    // SELECT EVENT MODAL (Host Side - Admin / Co-Head)
+    // REVERSE QR GENERATION & EVENT SELECTION (Host Side - Admin / Co-Head)
     // ------------------------------------------------------------------------
-    async openSelectEventForQRModal() {
-      if (!window.CABSSA_AUTH.requireCoHead()) return;
-      await this.loadEventsDropdown();
-      const modal = document.getElementById('eventSelectForQRModal');
-      if (modal) modal.classList.remove('hidden');
+    async openSelectEventForQRModal(eventId = 'general') {
+      return this.openGenerateQRModal(eventId);
     },
 
     closeSelectEventForQRModal() {
-      const modal = document.getElementById('eventSelectForQRModal');
-      if (modal) modal.classList.add('hidden');
+      this.closeGenerateQRModal();
     },
 
     async startQRFromSelectedEvent() {
-      const sel = document.getElementById('eventSelectForQRDropdown');
-      if (!sel || !sel.value) {
-        window.CABSSA_TOAST.show('Please select an event from the list.', 'warning');
-        return;
-      }
-      const eventId = sel.value;
-      const eventTitle = sel.options[sel.selectedIndex].text;
-      this.closeSelectEventForQRModal();
-      await this.openGenerateQRModal(eventId, eventTitle);
+      const sel = document.getElementById('qrModalEventSelector') || document.getElementById('eventSelectForQRDropdown');
+      const eventId = (sel && sel.value) ? sel.value : 'general';
+      await this.openGenerateQRModal(eventId);
     },
 
-    // ------------------------------------------------------------------------
-    // REVERSE QR GENERATION (Host Side - Admin / Co-Head)
-    // ------------------------------------------------------------------------
-    async openGenerateQRModal(eventId, eventTitle) {
+    async openGenerateQRModal(eventId = 'general') {
       if (!window.CABSSA_AUTH.requireCoHead()) return;
 
       const modal = document.getElementById('qrGeneratorModal');
-      const titleEl = document.getElementById('qrModalEventTitle');
+      const eventSelector = document.getElementById('qrModalEventSelector');
       const tokenDisplay = document.getElementById('qrTokenDisplay');
       const timerDisplay = document.getElementById('qrTimerDisplay');
       const qrContainer = document.getElementById('qrcodeContainer');
 
-      if (titleEl) titleEl.textContent = eventTitle || 'CABSSA Committee Event';
       if (tokenDisplay) tokenDisplay.textContent = 'Generating cryptographic session...';
-      if (qrContainer) qrContainer.innerHTML = '<span class="text-xs text-slate-500 font-mono">Generating QR...</span>';
+      if (qrContainer) {
+        qrContainer.innerHTML = `
+          <div class="flex flex-col items-center justify-center p-6 space-y-3">
+            <svg class="w-8 h-8 text-violet-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="text-xs text-slate-400 font-mono">Generating secure QR code...</span>
+          </div>
+        `;
+      }
 
       if (modal) modal.classList.remove('hidden');
 
+      // Populate events dropdown in the QR modal
       try {
-        const res = await window.CABSSA_API.createQRSession(eventId, 30);
+        const events = await window.CABSSA_API.getEvents();
+        if (eventSelector) {
+          eventSelector.innerHTML = '<option value="general">⚡ Today’s Daily Club Session</option>';
+          events.forEach(ev => {
+            const isSel = ev.id === eventId ? 'selected' : '';
+            eventSelector.innerHTML += `<option value="${ev.id}" ${isSel}>${escapeHtml(ev.title)} (${ev.event_date})</option>`;
+          });
+          if (eventId) eventSelector.value = eventId;
+        }
+      } catch (e) {}
+
+      try {
+        const res = await window.CABSSA_API.createQRSession(eventId || 'general', 30);
         activeQrSession = res.data;
 
-        if (tokenDisplay) tokenDisplay.textContent = activeQrSession.token;
+        if (tokenDisplay) {
+          tokenDisplay.innerHTML = `
+            <div class="flex items-center justify-between gap-2 bg-white/[0.04] p-2 rounded-lg border border-white/[0.08]">
+              <span class="font-mono text-white text-[11px] truncate select-all">${activeQrSession.token}</span>
+              <button type="button" onclick="navigator.clipboard.writeText('${activeQrSession.token}').then(() => window.CABSSA_TOAST.show('Session token copied to clipboard!', 'success'))" class="px-2 py-1 text-[10px] font-sans font-bold bg-violet-600 hover:bg-violet-500 text-white rounded transition-colors shrink-0">Copy</button>
+            </div>
+          `;
+        }
 
-        // Render genuine high-resolution scannable QR Code
+        // Render genuine high-resolution scannable QR Code using QR Server API with QRCodejs fallback
         if (qrContainer) {
           qrContainer.innerHTML = '';
-          if (window.QRCode) {
-            qrCodeGenerator = new window.QRCode(qrContainer, {
-              text: activeQrSession.token,
-              width: 200,
-              height: 200,
-              colorDark: '#000000',
-              colorLight: '#ffffff',
-              correctLevel: window.QRCode.CorrectLevel.M
-            });
-          } else {
-            qrContainer.innerHTML = `<p class="text-xs text-slate-800 font-mono p-4 text-center">Session Token:<br><strong class="text-sm">${activeQrSession.token}</strong></p>`;
-          }
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(activeQrSession.token)}`;
+          
+          const img = document.createElement('img');
+          img.src = qrUrl;
+          img.alt = 'Attendance QR Code';
+          img.className = 'w-48 h-48 object-contain rounded-xl mx-auto shadow-md border border-slate-200';
+          img.onerror = () => {
+            if (window.QRCode) {
+              qrContainer.innerHTML = '';
+              new window.QRCode(qrContainer, {
+                text: activeQrSession.token,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: window.QRCode.CorrectLevel.M
+              });
+            } else {
+              qrContainer.innerHTML = `<p class="text-xs text-slate-800 font-mono p-4 text-center">Session Token:<br><strong class="text-sm">${activeQrSession.token}</strong></p>`;
+            }
+          };
+          qrContainer.appendChild(img);
         }
 
         // Start 30-minute countdown timer
@@ -209,8 +240,15 @@
         }, 1000);
 
       } catch (err) {
+        console.error('[QR GENERATE ERROR]', err);
         window.CABSSA_TOAST.show('Failed to create QR session: ' + err.message, 'error');
-        this.closeGenerateQRModal();
+        if (qrContainer) {
+          qrContainer.innerHTML = `
+            <div class="p-4 text-center text-rose-400 text-xs font-mono">
+              Error creating QR session: ${escapeHtml(err.message)}
+            </div>
+          `;
+        }
       }
     },
 
